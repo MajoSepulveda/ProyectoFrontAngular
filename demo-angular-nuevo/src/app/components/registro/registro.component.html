@@ -1,0 +1,172 @@
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+  <mat-card style="max-width: 500px; width: 100%;">
+    <!-- Header -->
+    <mat-card-header>
+      <mat-card-title>Crear Cuenta</mat-card-title>
+      <mat-card-subtitle>Regístrate como ciudadano</mat-card-subtitle>
+    </mat-card-header>
+
+    <!-- Contenido -->
+    <mat-card-content>
+      <!-- Mensaje de Éxito -->
+      <div *ngIf="mensajeExito" style="margin-bottom: 16px;">
+        <mat-card style="background-color: #d4edda; border: 1px solid #c3e6cb;">
+          <mat-card-content style="display: flex; align-items: center; gap: 12px; color: #155724;">
+            <mat-icon style="color: #28a745;">check_circle</mat-icon>
+            <span>{{ mensajeExito }}</span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Mensaje de Error -->
+      <div *ngIf="mensajeError" style="margin-bottom: 16px;">
+        <mat-card style="background-color: #f8d7da; border: 1px solid #f5c6cb;">
+          <mat-card-content style="display: flex; align-items: center; gap: 12px; color: #721c24;">
+            <mat-icon style="color: #dc3545;">error</mat-icon>
+            <span>{{ mensajeError }}</span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="formularioRegistro" (ngSubmit)="ejecutarRegistro()">
+        <!-- Nombre -->
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+          <mat-label>Nombre Completo</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="nombre"
+            placeholder="Tu nombre completo"
+          />
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error>{{ obtenerError('nombre') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="tu@email.com"
+          />
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-spinner *ngIf="emailVerificando" diameter="20" style="position: absolute; right: 12px;"></mat-spinner>
+          <mat-icon *ngIf="!emailVerificando && emailExiste" matSuffix style="color: #dc3545;">error</mat-icon>
+          <mat-error>{{ obtenerError('email') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Teléfono y Dirección -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono (Opcional)</mat-label>
+            <input
+              matInput
+              type="tel"
+              formControlName="telefono"
+              placeholder="+57 1234567"
+            />
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error>{{ obtenerError('telefono') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Dirección (Opcional)</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="direccion"
+              placeholder="Tu dirección"
+            />
+            <mat-icon matPrefix>location_on</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Contraseña -->
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            [type]="mostrarPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Mínimo 6 caracteres"
+          />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="toggleMostrarPassword()"
+          >
+            <mat-icon>{{ mostrarPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-error>{{ obtenerError('password') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Confirmar Contraseña -->
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+          <mat-label>Confirmar Contraseña</mat-label>
+          <input
+            matInput
+            [type]="mostrarConfirmarPassword ? 'text' : 'password'"
+            formControlName="confirmarPassword"
+            placeholder="Repite tu contraseña"
+          />
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="toggleMostrarConfirmarPassword()"
+          >
+            <mat-icon>{{ mostrarConfirmarPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-error>{{ obtenerError('confirmarPassword') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Checkbox Términos -->
+        <mat-checkbox
+          formControlName="aceptoTerminos"
+          style="margin-bottom: 16px;"
+        >
+          Acepto los
+          <a href="#" target="_blank" style="color: #1976d2;">términos y condiciones</a>
+          y la
+          <a href="#" target="_blank" style="color: #1976d2;">política de privacidad</a>
+        </mat-checkbox>
+
+        <!-- Información del rol -->
+        <mat-card style="background-color: #e7f3ff; border: 1px solid #b3d9ff; margin-bottom: 16px;">
+          <mat-card-content style="display: flex; align-items: flex-start; gap: 12px; color: #004085; font-size: 13px;">
+            <mat-icon style="color: #0c5aa0; margin-top: 2px;">info</mat-icon>
+            <span>Te registrarás como <strong>ciudadano</strong>. Los administradores podrán cambiar tu rol si es necesario.</span>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Botón Registro -->
+        <button
+          type="submit"
+          mat-raised-button
+          color="primary"
+          style="width: 100%; margin-bottom: 16px;"
+          [disabled]="formularioRegistro.invalid || cargando || emailExiste"
+        >
+          <mat-spinner *ngIf="cargando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+          <span>{{ cargando ? 'Registrando...' : 'Crear Cuenta' }}</span>
+        </button>
+      </form>
+
+      <!-- Link al login -->
+      <div style="text-align: center; margin-top: 16px;">
+        <p style="margin: 0; font-size: 14px;">
+          ¿Ya tienes cuenta?
+          <a (click)="irALogin()" style="cursor: pointer; color: #1976d2; font-weight: 600;">
+            Inicia sesión aquí
+          </a>
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

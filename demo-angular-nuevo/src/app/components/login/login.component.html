@@ -1,0 +1,91 @@
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+  <mat-card style="max-width: 450px; width: 100%;">
+    <!-- Header -->
+    <mat-card-header>
+      <mat-card-title>Iniciar Sesión</mat-card-title>
+      <mat-card-subtitle>Ingresa con tu email y contraseña</mat-card-subtitle>
+    </mat-card-header>
+
+    <!-- Contenido -->
+    <mat-card-content>
+      <!-- Mensaje de Éxito -->
+      <div *ngIf="mensajeExito" style="margin-bottom: 16px;">
+        <mat-card style="background-color: #d4edda; border: 1px solid #c3e6cb;">
+          <mat-card-content style="display: flex; align-items: center; gap: 12px; color: #155724;">
+            <mat-icon style="color: #28a745;">check_circle</mat-icon>
+            <span>{{ mensajeExito }}</span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Mensaje de Error -->
+      <div *ngIf="mensajeError" style="margin-bottom: 16px;">
+        <mat-card style="background-color: #f8d7da; border: 1px solid #f5c6cb;">
+          <mat-card-content style="display: flex; align-items: center; gap: 12px; color: #721c24;">
+            <mat-icon style="color: #dc3545;">error</mat-icon>
+            <span>{{ mensajeError }}</span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="formularioLogin" (ngSubmit)="ejecutarLogin()">
+        <!-- Email -->
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="tu@email.com"
+          />
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error>{{ obtenerError('email') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Contraseña -->
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            [type]="mostrarPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Tu contraseña"
+          />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="toggleMostrarPassword()"
+          >
+            <mat-icon>{{ mostrarPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-error>{{ obtenerError('password') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Botón Login -->
+        <button
+          type="submit"
+          mat-raised-button
+          color="primary"
+          style="width: 100%; margin-bottom: 16px;"
+          [disabled]="formularioLogin.invalid || cargando"
+        >
+          <mat-spinner *ngIf="cargando" diameter="20" style="margin-right: 8px;"></mat-spinner>
+          <span>{{ cargando ? 'Iniciando...' : 'Iniciar Sesión' }}</span>
+        </button>
+      </form>
+
+      <!-- Link al registro -->
+      <div style="text-align: center; margin-top: 16px;">
+        <p style="margin: 0; font-size: 14px;">
+          ¿No tienes cuenta?
+          <a (click)="irARegistro()" style="cursor: pointer; color: #1976d2; font-weight: 600;">
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
