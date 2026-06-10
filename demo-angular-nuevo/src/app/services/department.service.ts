@@ -2,32 +2,33 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { City } from '../models/City';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CityService {
-  private apiUrl = 'http://localhost:5000/api/cities';
+  private endpoint = '/departments';
 
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) {}
 
   getAll(): Observable<City[]> {
-    return this.http.get<City[]>(this.apiUrl);
+    return this.apiService.get<City[]>(this.endpoint);
   }
 
   getById(id: number): Observable<City> {
-    return this.http.get<City>(`${this.apiUrl}/${id}`);
+    return this.apiService.get<City>(`${this.endpoint}/${id}`);
   }
 
   create(city: City): Observable<City> {
-    return this.http.post<City>(this.apiUrl, city);
+    return this.apiService.post<City>(this.endpoint, city);
   }
 
   update(id: number, city: City): Observable<City> {
-    return this.http.put<City>(`${this.apiUrl}/${id}`, city);
+    return this.apiService.put<City>(`${this.endpoint}/${id}`, city);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.apiService.delete<void>(`${this.endpoint}/${id}`);
   }
 }

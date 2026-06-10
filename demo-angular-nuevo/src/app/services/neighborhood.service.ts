@@ -2,32 +2,33 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Neighborhood } from '../models/Neighborhood';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NeighborhoodService {
-  private apiUrl = 'http://localhost:5000/api/neighborhoods';
+  private endpoint = '/neighborhoods';
 
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) {}
 
   getAll(): Observable<Neighborhood[]> {
-    return this.http.get<Neighborhood[]>(this.apiUrl);
+    return this.apiService.get<Neighborhood[]>(this.endpoint);
   }
 
   getById(id: number): Observable<Neighborhood> {
-    return this.http.get<Neighborhood>(`${this.apiUrl}/${id}`);
+    return this.apiService.get<Neighborhood>(`${this.endpoint}/${id}`);
   }
 
   create(neighborhood: Neighborhood): Observable<Neighborhood> {
-    return this.http.post<Neighborhood>(this.apiUrl, neighborhood);
+    return this.apiService.post<Neighborhood>(this.endpoint, neighborhood);
   }
 
   update(id: number, neighborhood: Neighborhood): Observable<Neighborhood> {
-    return this.http.put<Neighborhood>(`${this.apiUrl}/${id}`, neighborhood);
+    return this.apiService.put<Neighborhood>(`${this.endpoint}/${id}`, neighborhood);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.apiService.delete<void>(`${this.endpoint}/${id}`);
   }
 }

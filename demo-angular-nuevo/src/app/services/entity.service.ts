@@ -2,32 +2,33 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Entity } from '../models/Entity';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EntityService {
-  private apiUrl = 'http://localhost:5000/api/entities';
+  private endpoint = '/entities';
 
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) {}
 
   getAll(): Observable<Entity[]> {
-    return this.http.get<Entity[]>(this.apiUrl);
+    return this.apiService.get<Entity[]>(this.endpoint);
   }
 
   getById(id: number): Observable<Entity> {
-    return this.http.get<Entity>(`${this.apiUrl}/${id}`);
+    return this.apiService.get<Entity>(`${this.endpoint}/${id}`);
   }
 
   create(entity: Entity): Observable<Entity> {
-    return this.http.post<Entity>(this.apiUrl, entity);
+    return this.apiService.post<Entity>(this.endpoint, entity);
   }
 
   update(id: number, entity: Entity): Observable<Entity> {
-    return this.http.put<Entity>(`${this.apiUrl}/${id}`, entity);
+    return this.apiService.put<Entity>(`${this.endpoint}/${id}`, entity);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.apiService.delete<void>(`${this.endpoint}/${id}`);
   }
 }

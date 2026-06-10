@@ -2,6 +2,7 @@ import {
   ApplicationConfig,
   provideZoneChangeDetection,
   importProvidersFrom,
+  InjectionToken,
 } from '@angular/core';
 import {
   provideHttpClient,
@@ -28,7 +29,7 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
 //Import all material modules
 import { MaterialModule } from './material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+export const API_URL = new InjectionToken<string>('API_URL');
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -55,5 +56,9 @@ export const appConfig: ApplicationConfig = {
       prefix: './assets/i18n/',
       suffix: '.json'
     }),
+    {
+    provide: API_URL,
+    useValue: 'http://localhost:5000/api'
+  }
   ],
 };

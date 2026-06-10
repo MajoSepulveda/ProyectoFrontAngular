@@ -2,32 +2,33 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Official } from '../models/Official';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OfficialService {
-  private apiUrl = 'http://localhost:5000/api/officials';
+  private endpoint = '/categories';
 
-  constructor(private http: HttpClient) { }
+  constructor(private apiService: ApiService) {}
 
   getAll(): Observable<Official[]> {
-    return this.http.get<Official[]>(this.apiUrl);
+    return this.apiService.get<Official[]>(this.endpoint);
   }
 
   getById(id: number): Observable<Official> {
-    return this.http.get<Official>(`${this.apiUrl}/${id}`);
+    return this.apiService.get<Official>(`${this.endpoint}/${id}`);
   }
 
   create(official: Official): Observable<Official> {
-    return this.http.post<Official>(this.apiUrl, official);
+    return this.apiService.post<Official>(this.endpoint, official);
   }
 
   update(id: number, official: Official): Observable<Official> {
-    return this.http.put<Official>(`${this.apiUrl}/${id}`, official);
+    return this.apiService.put<Official>(`${this.endpoint}/${id}`, official);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.apiService.delete<void>(`${this.endpoint}/${id}`);
   }
 }

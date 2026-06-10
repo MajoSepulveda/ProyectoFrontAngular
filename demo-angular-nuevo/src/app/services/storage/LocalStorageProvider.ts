@@ -1,19 +1,24 @@
-import { StorageProvider } from "./StorageProvider";
+import { Injectable } from '@angular/core';
+import { StorageProvider } from './StorageProvider';
 
+@Injectable({
+  providedIn: 'root'
+})
 export class LocalStorageProvider implements StorageProvider {
-    getItem(key: string): string | null {
-        return localStorage.getItem(key);
-    }
 
-    setItem(key: string, value: string): void {
-        localStorage.setItem(key, value);
-    }
+  getItem(key: string): string | null {
+    return localStorage.getItem(key);
+  }
 
-    removeItem(key: string): void {
-        localStorage.removeItem(key);
-    }
+  setItem(key: string, value: string): void {
+    localStorage.setItem(key, value);
+  }
 
-    clear(): void {
-        localStorage.clear();
-    }
+  removeItem(key: string): void {
+    localStorage.removeItem(key);
+  }
+
+  clear(): void {
+    localStorage.clear();
+  }
 }

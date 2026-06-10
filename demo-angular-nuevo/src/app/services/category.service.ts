@@ -1,33 +1,42 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiService } from './api.service';
 import { Category } from '../models/Category';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoryService {
-  private apiUrl = 'http://localhost:5000/api/categories';
 
-  constructor(private http: HttpClient) { }
+  private endpoint = '/categories';
+
+  constructor(private apiService: ApiService) {}
 
   getAll(): Observable<Category[]> {
-    return this.http.get<Category[]>(this.apiUrl);
+    return this.apiService.get<Category[]>(this.endpoint);
   }
 
   getById(id: number): Observable<Category> {
-    return this.http.get<Category>(`${this.apiUrl}/${id}`);
+    return this.apiService.get<Category>(`${this.endpoint}/${id}`);
   }
 
   create(category: Category): Observable<Category> {
-    return this.http.post<Category>(this.apiUrl, category);
+    return this.apiService.post<Category>(
+      this.endpoint,
+      category
+    );
   }
 
   update(id: number, category: Category): Observable<Category> {
-    return this.http.put<Category>(`${this.apiUrl}/${id}`, category);
+    return this.apiService.put<Category>(
+      `${this.endpoint}/${id}`,
+      category
+    );
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.apiService.delete<void>(
+      `${this.endpoint}/${id}`
+    );
   }
 }
