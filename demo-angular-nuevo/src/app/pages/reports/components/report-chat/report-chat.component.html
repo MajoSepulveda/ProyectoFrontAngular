@@ -1,0 +1,21 @@
+<mat-card class="chat-card">
+	<mat-card-title>Consulta de reportes</mat-card-title>
+	<mat-card-subtitle>Escribe una consulta y el backend decidirá qué tipo de gráfica devolver.</mat-card-subtitle>
+
+	<mat-form-field appearance="outline" class="query-field">
+		<mat-label>Consulta</mat-label>
+		<textarea
+			matInput
+			rows="4"
+			[(ngModel)]="query"
+			(keyup.enter)="send()"
+			placeholder="Ej: ventas por mes y participación por equipo"
+		></textarea>
+	</mat-form-field>
+
+	<div class="actions">
+		<button mat-raised-button color="primary" (click)="send()" [disabled]="loading">
+			{{ loading ? 'Enviando...' : 'Enviar consulta' }}
+		</button>
+	</div>
+</mat-card>

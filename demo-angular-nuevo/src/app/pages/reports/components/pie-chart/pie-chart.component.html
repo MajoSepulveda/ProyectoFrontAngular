@@ -1,0 +1,14 @@
+<mat-card class="chart-card" *ngIf="chartOptions">
+	<mat-card-title>Gráfica de pastel</mat-card-title>
+	<mat-card-subtitle>Respuesta del backend con type = pie</mat-card-subtitle>
+
+	<apx-chart
+		[series]="chartOptions.series"
+		[chart]="chartOptions.chart"
+		[labels]="chartOptions.labels"
+		[dataLabels]="chartOptions.dataLabels"
+		[legend]="chartOptions.legend"
+		[tooltip]="chartOptions.tooltip"
+		[responsive]="chartOptions.responsive"
+	></apx-chart>
+</mat-card>
