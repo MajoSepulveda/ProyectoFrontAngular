@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { StarterComponent } from './starter/starter.component';
 import { ReportsComponent } from './reports/reports.component';
+import { AdvancedFilterComponent } from './social-analytics/advanced-filter/advanced-filter.component';
 
 export const PagesRoutes: Routes = [
   {
@@ -22,6 +23,17 @@ export const PagesRoutes: Routes = [
         urls: [
           { title: 'Dashboard', url: '/dashboard' },
           { title: 'Reports' },
+        ],
+      },
+    },
+    {
+      path: 'annotations',
+      component: AdvancedFilterComponent,
+      data: {
+        title: 'Advanced Filter',
+        urls: [
+          { title: 'Dashboard', url: '/dashboard' },
+          { title: 'Annotations' },
         ],
       },
     },
