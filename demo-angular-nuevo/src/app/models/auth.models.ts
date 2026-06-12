@@ -4,7 +4,6 @@ export interface Usuario {
   email: string;
   telefono?: string;
   direccion?: string;
-  rol: 'ciudadano' | 'funcionario' | 'admin';
   estado: string;
 }
 

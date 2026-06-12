@@ -1,1 +1,51 @@
-<p>table-list works!</p>
+<table>
+
+  <thead>
+    <tr>
+
+      @for(column of columns; track column.key) {
+        <th>{{ column.label }}</th>
+      }
+
+      <th>Opciones</th>
+
+    </tr>
+  </thead>
+
+  <tbody>
+
+    @for(item of data; track item) {
+
+      <tr>
+
+        @for(column of columns; track column.key) {
+
+          <td>
+            {{ item[column.key] }}
+          </td>
+
+        }
+
+        <td>
+
+          <button (click)="view.emit(item)">
+            Ver
+          </button>
+
+          <button (click)="edit.emit(item)">
+            Editar
+          </button>
+
+          <button (click)="delete.emit(item)">
+            Eliminar
+          </button>
+
+        </td>
+
+      </tr>
+
+    }
+
+  </tbody>
+
+</table>
