@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { ReportsComponent } from './pages/reports/reports.component';
+import { OfficialTrackingComponent } from './pages/social-analytics/official-tracking.component';
 
 export const routes: Routes = [
   {
@@ -33,6 +34,10 @@ export const routes: Routes = [
         path: 'extra',
         loadChildren: () =>
           import('./pages/extra/extra.routes').then((m) => m.ExtraRoutes),
+      },
+      {
+        path: 'social-analytics/tracking',
+        component: OfficialTrackingComponent,
       },
     ],
   },

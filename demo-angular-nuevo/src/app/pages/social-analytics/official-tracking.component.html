@@ -1,0 +1,45 @@
+<h2>Ver ubicación en tiempo real de funcionarios</h2>
+
+<!-- Entity filter dropdown -->
+<div>
+  <label for="entity-select">Filtrar por entidad:</label>
+  <select id="entity-select" [ngModel]="selectedEntityId" (ngModelChange)="selectedEntityId = $event; onEntityChange()">
+    <option [ngValue]="null">Todas las entidades</option>
+    @for (entity of testEntities; track entity.id_entity) {
+      <option [ngValue]="entity.id_entity">{{ entity.name }}</option>
+    }
+  </select>
+</div>
+
+<!-- Loading state -->
+@if (loading) {
+  <p>Cargando funcionarios…</p>
+}
+
+<!-- Error state -->
+@if (error) {
+  <p class="error">{{ error }}</p>
+}
+
+<!-- Live tracking list -->
+@if (!loading && !error) {
+  <h3>Funcionarios activos ({{ filteredOfficials.length }})</h3>
+
+  @if (filteredOfficials.length === 0) {
+    <p>No hay funcionarios activos para la entidad seleccionada.</p>
+  }
+
+  <ul>
+    @for (official of filteredOfficials; track official.id_official) {
+      <li>
+        <strong>{{ official.name }}</strong>
+        — Lat: {{ official.last_latitude.toFixed(4) }},
+        Lng: {{ official.last_longitude.toFixed(4) }}
+        — Estado: {{ official.status }}
+        — GPS: {{ official.gps_active ? 'Activo' : 'Inactivo' }}
+        <br />
+        <small>Última actualización: {{ official.last_gps_update }}</small>
+      </li>
+    }
+  </ul>
+}

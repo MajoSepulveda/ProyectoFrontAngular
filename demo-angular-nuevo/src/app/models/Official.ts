@@ -5,6 +5,7 @@ import { User } from './User';
  * Hereda de User e incluye propiedades específicas de funcionarios
  */
 export interface Official extends User {
+  id_official: number;
   id_entity: number;
   role: string;
   last_latitude: number;
