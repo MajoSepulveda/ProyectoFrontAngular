@@ -34,6 +34,13 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./pages/extra/extra.routes').then((m) => m.ExtraRoutes),
       },
+      {
+        path: 'social-analytics',
+        loadChildren: () =>
+          import('./pages/social-analytics/social-analytics.routes').then(
+            (m) => m.SocialAnalyticsRoutes
+          ),
+      },
     ],
   },
   {
