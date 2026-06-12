@@ -1,0 +1,26 @@
+<h2 mat-dialog-title class="font-bold text-lg">{{ dialogData.title }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="flex flex-col gap-3 py-2 min-w-96">
+    @for (field of dialogData.fields; track field.key) {
+      @if (field.type === 'boolean') {
+        <div class="flex items-center gap-3 py-1">
+          <mat-slide-toggle [formControlName]="field.key">{{ field.label }}</mat-slide-toggle>
+        </div>
+      } @else {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ field.label }}</mat-label>
+          <input matInput
+            [formControlName]="field.key"
+            [type]="field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : 'text'"
+            [readonly]="field.readonly ?? false" />
+        </mat-form-field>
+      }
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="gap-2">
+  <button mat-stroked-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirm()">Guardar</button>
+</mat-dialog-actions>

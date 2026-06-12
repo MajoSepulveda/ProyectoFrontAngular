@@ -1,0 +1,16 @@
+<div class="p-6">
+  <mat-card class="cardWithShadow">
+    <mat-card-header class="mb-4">
+      <mat-card-title class="text-xl font-bold">Barrios</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-data-table
+        [columns]="columns"
+        [data]="data"
+        (view)="onView($event)"
+        (edit)="onEdit($event)"
+        (delete)="onDelete($event)">
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
+</div>

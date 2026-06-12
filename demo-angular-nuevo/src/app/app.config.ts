@@ -15,9 +15,11 @@ import {
   withInMemoryScrolling,
 } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideClientHydration } from '@angular/platform-browser';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideAuth, getAuth } from '@angular/fire/auth';
+import { environment } from '../environments/environment';
 
 // icons
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -41,8 +43,14 @@ export const appConfig: ApplicationConfig = {
       }),
       withComponentInputBinding()
     ),
+    provideFirebaseApp(() =>
+      initializeApp(environment.firebase)
+    ),
+
+    provideAuth(() =>
+      getAuth()
+    ),
     provideHttpClient(withInterceptorsFromDi()),
-    provideClientHydration(),
     provideAnimationsAsync(),
     importProvidersFrom(
       FormsModule,
@@ -59,6 +67,6 @@ export const appConfig: ApplicationConfig = {
     {
     provide: API_URL,
     useValue: 'http://localhost:5000/api'
-  }
+  },
   ],
 };
