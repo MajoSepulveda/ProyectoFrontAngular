@@ -6,6 +6,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { CoreService } from 'src/app/services/core.service';
+import { SocialAuthService } from 'src/app/services/socialAuthService';
 import { MatDialog } from '@angular/material/dialog';
 import { navItems } from '../sidebar/sidebar-data';
 import { TranslateService } from '@ngx-translate/core';
@@ -58,9 +59,14 @@ export class HeaderComponent {
     private settings: CoreService,
     private vsidenav: CoreService,
     public dialog: MatDialog,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private socialAuth: SocialAuthService
   ) {
     translate.setDefaultLang('en');
+  }
+
+  logout(): void {
+    this.socialAuth.logout();
   }
 
   options = this.settings.getOptions();
