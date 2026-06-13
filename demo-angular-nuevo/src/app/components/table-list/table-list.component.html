@@ -17,7 +17,15 @@
         <tr class="border-b hover:bg-gray-50 transition-colors">
           @for (col of columns; track col.field) {
             <td class="px-4 py-3 text-gray-700">
-              {{ item[col.field] }}
+              @if (col.type === 'image') {
+                @if (item[col.field]) {
+                  <img [src]="item[col.field]" class="w-10 h-10 rounded object-cover border border-gray-200" alt="logo" />
+                } @else {
+                  <span class="text-gray-400">-</span>
+                }
+              } @else {
+                {{ item[col.field] }}
+              }
             </td>
           }
           <td class="px-4 py-3">

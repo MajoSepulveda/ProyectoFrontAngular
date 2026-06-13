@@ -6,6 +6,7 @@ import { DataTableComponent, TableColumn } from 'src/app/components/table-list/t
 import { ViewDialogComponent } from 'src/app/components/dialogs/view/view-dialog.component';
 import { EditDialogComponent, EditField } from 'src/app/components/dialogs/edit/edit-dialog.component';
 import { DeleteDialogComponent } from 'src/app/components/dialogs/delete/delete-dialog.component';
+import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-dialog.component';
 
 @Component({
   selector: 'app-official',
@@ -33,26 +34,33 @@ export class OfficialComponent implements OnInit {
     { key: 'email',             label: 'Correo',             type: 'email' },
     { key: 'phone',             label: 'Teléfono',           type: 'text' },
     { key: 'role',              label: 'Rol',                type: 'text' },
-    { key: 'status',            label: 'Estado',             type: 'text' },
-    { key: 'id_entity',         label: 'ID Entidad',         type: 'number' },
-    { key: 'last_latitude',     label: 'Última Latitud',     type: 'number' },
-    { key: 'last_longitude',    label: 'Última Longitud',    type: 'number' },
-    { key: 'last_gps_update',   label: 'Último GPS Update',  type: 'text' },
-    { key: 'gps_active',        label: 'GPS Activo',         type: 'boolean' },
+    { key: 'status',            label: 'Estado',             type: 'select', options: [
+      { value: 'activo',      label: 'Activo' },
+      { value: 'desactivado', label: 'Desactivado' },
+    ]},
+    { key: 'id_entity',  label: 'ID Entidad', type: 'number' },
+    { key: 'gps_active', label: 'GPS Activo', type: 'boolean' },
   ];
 
   ngOnInit(): void {
     this.api.get<any[]>('/officials').subscribe(data => this.data = data);
   }
 
+  onCreate(): void {
+    this.dialog.open(CreateDialogComponent, {
+      data: { title: 'Crear Funcionario', fields: this.editFields },
+    }).afterClosed().subscribe(result => {
+      if (result) this.api.post('/officials', result).subscribe(() => this.ngOnInit());
+    });
+  }
+
   onView(item: any): void {
-    this.dialog.open(ViewDialogComponent, { data: { title: 'Funcionario', data: item }, width: '500px' });
+    this.dialog.open(ViewDialogComponent, { data: { title: 'Funcionario', data: item } });
   }
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
       data: { title: 'Editar Funcionario', data: item, fields: this.editFields },
-      width: '520px',
     }).afterClosed().subscribe(result => {
       if (result) this.api.put(`/officials/${item.id_official}`, result).subscribe(() => this.ngOnInit());
     });
@@ -60,7 +68,7 @@ export class OfficialComponent implements OnInit {
 
   onDelete(item: any): void {
     this.dialog.open(DeleteDialogComponent, {
-      data: { itemName: item.name }, width: '420px',
+      data: { itemName: item.name },
     }).afterClosed().subscribe(ok => {
       if (ok) this.api.delete(`/officials/${item.id_official}`).subscribe(() => this.ngOnInit());
     });

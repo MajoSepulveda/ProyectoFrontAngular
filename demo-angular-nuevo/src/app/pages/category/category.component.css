@@ -1,0 +1,10 @@
+.cat-avatar { color: #fff; }
+
+.cat-avatar[data-color="0"] { background-color: #4CAF50; }
+.cat-avatar[data-color="1"] { background-color: #2196F3; }
+.cat-avatar[data-color="2"] { background-color: #9C27B0; }
+.cat-avatar[data-color="3"] { background-color: #FF5722; }
+.cat-avatar[data-color="4"] { background-color: #00BCD4; }
+.cat-avatar[data-color="5"] { background-color: #FF9800; }
+.cat-avatar[data-color="6"] { background-color: #795548; }
+.cat-avatar[data-color="7"] { background-color: #E91E63; }
