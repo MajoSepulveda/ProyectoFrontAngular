@@ -1,0 +1,35 @@
+<div class="flex h-[calc(100vh-120px)] gap-0">
+  <aside class="w-80 bg-white shadow-md p-4 overflow-y-auto flex flex-col gap-4">
+    <h2 class="text-lg font-semibold">Panel Territorial</h2>
+
+    <mat-form-field>
+      <mat-label>Comuna</mat-label>
+      <mat-select [(ngModel)]="selectedCommuneId" (selectionChange)="onCommuneChange()">
+        <mat-option *ngFor="let c of communes" [value]="c.id_commune">{{ c.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div *ngIf="neighborhoods.length > 0">
+      <h3 class="text-sm font-medium text-gray-600 mb-2">Barrios</h3>
+      <mat-nav-list>
+        <mat-list-item
+          *ngFor="let n of neighborhoods"
+          (click)="selectNeighborhood(n)"
+          [class.bg-primary-50]="selectedNeighborhood?.id_neighborhood === n.id_neighborhood"
+          class="rounded-md cursor-pointer mb-1 border border-gray-200 hover:bg-gray-50"
+        >
+          <span matListItemTitle>{{ n.name }}</span>
+        </mat-list-item>
+      </mat-nav-list>
+    </div>
+
+    <div *ngIf="selectedNeighborhood" class="mt-2 p-3 bg-blue-50 rounded-md text-sm">
+      <p class="font-medium">{{ selectedNeighborhood.name }}</p>
+      <p class="text-gray-600">Seleccione el barrio para demarcar sus puntos en el mapa.</p>
+    </div>
+  </aside>
+
+  <main class="flex-1 relative">
+    <div #mapContainer class="w-full h-full"></div>
+  </main>
+</div>

@@ -18,4 +18,8 @@ export class ColombiaApiService {
   getCitiesByDepartment(departmentId: number): Observable<City[]> {
     return this.http.get<City[]>(`${this.apiUrl}/cities/search?id_department=${departmentId}`);
   }
+
+  getCityById(id: number): Observable<City> {
+    return this.http.get<City>(`${this.apiUrl}/cities/${id}`);
+  }
 }

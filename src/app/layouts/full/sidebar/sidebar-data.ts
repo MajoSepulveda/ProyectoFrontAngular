@@ -52,6 +52,11 @@ export const navItems: NavItem[] = [
     iconName: 'solar:map-point-wave-line-duotone',
     route: '/territorial/barrios',
   },
+  {
+    displayName: 'Mapa Territorial',
+    iconName: 'solar:map-line-duotone',
+    route: '/territorial/mapa',
+  },
 
   {
     navCap: 'Pages',
