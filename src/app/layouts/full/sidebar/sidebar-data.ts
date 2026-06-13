@@ -40,6 +40,20 @@ export const navItems: NavItem[] = [
   },
 
   {
+    navCap: 'Territorial',
+  },
+  {
+    displayName: 'Comunas',
+    iconName: 'solar:city-line-duotone',
+    route: '/territorial/comunas',
+  },
+  {
+    displayName: 'Barrios',
+    iconName: 'solar:map-point-wave-line-duotone',
+    route: '/territorial/barrios',
+  },
+
+  {
     navCap: 'Pages',
   },
   {

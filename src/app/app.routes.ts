@@ -33,7 +33,14 @@ export const routes: Routes = [
         path: 'users',
         loadChildren: () =>
           import('./pages/users/users.routes').then((m) => m.UserRoutes),
-      }
+      },
+      {
+        path: 'territorial',
+        loadChildren: () =>
+          import('./pages/territorial/territorial.routes').then(
+            (m) => m.TerritorialRoutes
+          ),
+      },
     ],
   },
   {
