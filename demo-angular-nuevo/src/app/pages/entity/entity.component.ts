@@ -6,6 +6,7 @@ import { DataTableComponent, TableColumn } from 'src/app/components/table-list/t
 import { ViewDialogComponent } from 'src/app/components/dialogs/view/view-dialog.component';
 import { EditDialogComponent, EditField } from 'src/app/components/dialogs/edit/edit-dialog.component';
 import { DeleteDialogComponent } from 'src/app/components/dialogs/delete/delete-dialog.component';
+import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-dialog.component';
 
 @Component({
   selector: 'app-entity',
@@ -20,34 +21,57 @@ export class EntityComponent implements OnInit {
 
   columns: TableColumn[] = [
     { field: 'id_entity', header: 'ID' },
+    { field: 'logo_url',  header: 'Logo',      type: 'image' },
     { field: 'name',      header: 'Nombre' },
+    { field: 'nit',       header: 'NIT' },
     { field: 'email',     header: 'Correo' },
     { field: 'phone',     header: 'Teléfono' },
     { field: 'status',    header: 'Estado' },
   ];
 
   editFields: EditField[] = [
-    { key: 'name',     label: 'Nombre',     type: 'text' },
-    { key: 'email',    label: 'Correo',     type: 'email' },
-    { key: 'phone',    label: 'Teléfono',   type: 'text' },
-    { key: 'address',  label: 'Dirección',  type: 'text' },
-    { key: 'nit',      label: 'NIT',        type: 'text' },
-    { key: 'logo_url', label: 'URL Logo',   type: 'text' },
-    { key: 'status',   label: 'Estado',     type: 'text' },
+    { key: 'name',     label: 'Nombre',    type: 'text' },
+    { key: 'nit',      label: 'NIT',       type: 'text' },
+    { key: 'email',    label: 'Correo',    type: 'email' },
+    { key: 'phone',    label: 'Teléfono',  type: 'text' },
+    { key: 'address',  label: 'Dirección', type: 'text' },
+    { key: 'logo_url', label: 'Logo',      type: 'image' },
+    {
+      key: 'status', label: 'Estado', type: 'select',
+      options: [
+        { value: 'activo',       label: 'Activo' },
+        { value: 'desactivado',  label: 'Desactivado' },
+      ],
+    },
   ];
 
   ngOnInit(): void {
     this.api.get<any[]>('/entities').subscribe(data => this.data = data);
   }
 
+  onCreate(): void {
+    this.dialog.open(CreateDialogComponent, {
+      data: {
+        title: 'Crear Entidad',
+        fields: this.editFields,
+        existingData: this.data,
+        uniqueKeys: [
+          { key: 'name', label: 'nombre' },
+          { key: 'nit',  label: 'NIT' },
+        ],
+      },
+    }).afterClosed().subscribe(result => {
+      if (result) this.api.post('/entities', result).subscribe(() => this.ngOnInit());
+    });
+  }
+
   onView(item: any): void {
-    this.dialog.open(ViewDialogComponent, { data: { title: 'Entidad', data: item }, width: '500px' });
+    this.dialog.open(ViewDialogComponent, { data: { title: 'Entidad', data: item } });
   }
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
       data: { title: 'Editar Entidad', data: item, fields: this.editFields },
-      width: '520px',
     }).afterClosed().subscribe(result => {
       if (result) this.api.put(`/entities/${item.id_entity}`, result).subscribe(() => this.ngOnInit());
     });
@@ -55,7 +79,7 @@ export class EntityComponent implements OnInit {
 
   onDelete(item: any): void {
     this.dialog.open(DeleteDialogComponent, {
-      data: { itemName: item.name }, width: '420px',
+      data: { itemName: item.name },
     }).afterClosed().subscribe(ok => {
       if (ok) this.api.delete(`/entities/${item.id_entity}`).subscribe(() => this.ngOnInit());
     });

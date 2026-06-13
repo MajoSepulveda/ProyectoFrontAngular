@@ -6,6 +6,7 @@ import { DataTableComponent, TableColumn } from 'src/app/components/table-list/t
 import { ViewDialogComponent } from 'src/app/components/dialogs/view/view-dialog.component';
 import { EditDialogComponent, EditField } from 'src/app/components/dialogs/edit/edit-dialog.component';
 import { DeleteDialogComponent } from 'src/app/components/dialogs/delete/delete-dialog.component';
+import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-dialog.component';
 
 @Component({
   selector: 'app-citizen',
@@ -31,7 +32,10 @@ export class CitizenComponent implements OnInit {
     { key: 'email',     label: 'Correo',     type: 'email' },
     { key: 'phone',     label: 'Teléfono',   type: 'text' },
     { key: 'address',   label: 'Dirección',  type: 'text' },
-    { key: 'status',    label: 'Estado',     type: 'text' },
+    { key: 'status',    label: 'Estado',     type: 'select', options: [
+      { value: 'activo',      label: 'Activo' },
+      { value: 'desactivado', label: 'Desactivado' },
+    ]},
     { key: 'latitude',  label: 'Latitud',    type: 'number' },
     { key: 'longitude', label: 'Longitud',   type: 'number' },
   ];
@@ -40,14 +44,21 @@ export class CitizenComponent implements OnInit {
     this.api.get<any[]>('/citizens').subscribe(data => this.data = data);
   }
 
+  onCreate(): void {
+    this.dialog.open(CreateDialogComponent, {
+      data: { title: 'Crear Ciudadano', fields: this.editFields },
+    }).afterClosed().subscribe(result => {
+      if (result) this.api.post('/citizens', result).subscribe(() => this.ngOnInit());
+    });
+  }
+
   onView(item: any): void {
-    this.dialog.open(ViewDialogComponent, { data: { title: 'Ciudadano', data: item }, width: '500px' });
+    this.dialog.open(ViewDialogComponent, { data: { title: 'Ciudadano', data: item } });
   }
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
       data: { title: 'Editar Ciudadano', data: item, fields: this.editFields },
-      width: '520px',
     }).afterClosed().subscribe(result => {
       if (result) this.api.put(`/citizens/${item.id_citizen}`, result).subscribe(() => this.ngOnInit());
     });
@@ -55,7 +66,7 @@ export class CitizenComponent implements OnInit {
 
   onDelete(item: any): void {
     this.dialog.open(DeleteDialogComponent, {
-      data: { itemName: item.name }, width: '420px',
+      data: { itemName: item.name },
     }).afterClosed().subscribe(ok => {
       if (ok) this.api.delete(`/citizens/${item.id_citizen}`).subscribe(() => this.ngOnInit());
     });

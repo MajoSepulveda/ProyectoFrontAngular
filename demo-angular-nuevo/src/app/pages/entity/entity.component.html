@@ -1,7 +1,10 @@
 <div class="p-6">
   <mat-card class="cardWithShadow">
-    <mat-card-header class="mb-4">
+    <mat-card-header class="mb-4 flex justify-between items-center">
       <mat-card-title class="text-xl font-bold">Entidades</mat-card-title>
+      <button mat-flat-button color="primary" (click)="onCreate()">
+        <mat-icon>add</mat-icon> Crear Entidad
+      </button>
     </mat-card-header>
     <mat-card-content>
       <app-data-table

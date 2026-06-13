@@ -4,6 +4,7 @@ import { MaterialModule } from 'src/app/material.module';
 export interface TableColumn {
   field: string;
   header: string;
+  type?: 'text' | 'image';
 }
 
 @Component({
