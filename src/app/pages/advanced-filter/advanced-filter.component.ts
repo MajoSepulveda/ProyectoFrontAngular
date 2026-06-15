@@ -1,16 +1,13 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '../../../material.module';
+import { MaterialModule } from '../../material.module';
 import * as L from 'leaflet';
-import {
-  AdvancedFilterService,
-  Anotation,
-  AnotationCategory,
-  TreeNode,
-  FlatNode,
-} from '../../../services/advanced-filter.service';
-import { MapStateService } from '../../../services/map-state.service';
-import { Category } from '../../../models/Category';
+import { AdvancedFilterService } from '../../services/advanced-filter.service';
+import { TreeNode, FlatNode } from '../../models/tree-node';
+import { Annotation } from '../../models/Annotation';
+import { AnnotationCategory } from '../../models/annotation-category';
+import { MapStateService } from '../../services/map-state.service';
+import { Category } from '../../models/Category';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -23,9 +20,9 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   // ──────────────────────────────────────────────
   //  RAW DATA – populated from HTTP or mock source
   // ──────────────────────────────────────────────
-  allAnnotations: Anotation[] = [];
+  allAnnotations: Annotation[] = [];
   allCategories: Category[] = [];
-  allRelations: AnotationCategory[] = [];
+  allRelations: AnnotationCategory[] = [];
 
   // ──────────────────────────────────────────────
   //  PROCESSED DATA
@@ -47,13 +44,6 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   //  UI STATE
   // ──────────────────────────────────────────────
   loading = true;
-
-  /**
-   * Toggle to false after the real backend is reachable.
-   * When true, the service returns pre-linked dummy data so tree parsing
-   * and counts can be verified immediately.
-   */
-  useMockData = true;
 
   @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
 
@@ -101,15 +91,11 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   private loadData(): void {
     this.loading = true;
 
-    const data$ = this.useMockData
-      ? this.filterService.getMockData()
-      : forkJoin([
-          this.filterService.getAnnotations(),
-          this.filterService.getCategories(),
-          this.filterService.getAnnotationCategories(),
-        ]);
-
-    data$.subscribe({
+    forkJoin([
+      this.filterService.getAnnotations(),
+      this.filterService.getCategories(),
+      this.filterService.getAnnotationCategories(),
+    ]).subscribe({
       next: ([annotations, categories, relations]) => {
         this.allAnnotations = annotations;
         this.allCategories = categories;
@@ -268,7 +254,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
    *   - allAnnotations.length === 0  →  "zero annotations in the system"
    *   - filteredAnnotations.length === 0  →  "filter yields no results"
    */
-  get filteredAnnotations(): Anotation[] {
+  get filteredAnnotations(): Annotation[] {
     if (this.allAnnotations.length === 0) return [];
 
     const effectiveIds = this.getEffectiveSelectedIds();
@@ -277,6 +263,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     if (effectiveIds.size === 0) return [...this.allAnnotations];
 
     return this.allAnnotations.filter((ann) => {
+      if (ann.id_annotation == null) return false;
       const catIds = this.annotationCategoryMap.get(ann.id_annotation) || [];
       return catIds.some((cid) => effectiveIds.has(cid));
     });
@@ -382,7 +369,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
    * Clears & rebuilds markers inside our private markerGroup so we never
    * touch other layers on the map.
    */
-  updateMapMarkers(annotations: Anotation[]): void {
+  updateMapMarkers(annotations: Annotation[]): void {
     if (!this.mapInstance) return;
 
     /* attach our isolated markerGroup once */
@@ -398,7 +385,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     for (const ann of annotations) {
       const lat = ann.latitude;
       const lng = ann.longitude;
-      if (lat == null || lng == null) continue;
+      if (lat == null || lng == null || ann.id_annotation == null) continue;
 
       const catInfo = this.resolveCategoryInfo(ann.id_annotation);
 
