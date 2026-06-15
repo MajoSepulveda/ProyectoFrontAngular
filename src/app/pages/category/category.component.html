@@ -1,0 +1,141 @@
+<div class="p-6">
+  <div class="mb-5">
+    <h1 class="text-2xl font-bold text-gray-800">Gestión de Categorías y Subcategorías</h1>
+    <p class="text-sm text-gray-500 mt-1">Administra las categorías que se utilizan para clasificar las anotaciones en el sistema.</p>
+  </div>
+
+  <mat-card class="cardWithShadow">
+    <mat-card-header class="mb-4 flex justify-between items-start">
+      <div>
+        <mat-card-title class="text-base font-semibold">Estructura de categorías</mat-card-title>
+        <mat-card-subtitle class="text-xs">Consulta, crea, edita o elimina categorías y subcategorías.</mat-card-subtitle>
+      </div>
+      <button mat-flat-button color="primary" (click)="onCreate()">
+        <mat-icon>add</mat-icon> Nueva categoría
+      </button>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-gray-50 border-b">
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Categoría / Subcategoría</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Categoría padre</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (parent of parents; track parent.id_category) {
+
+              <!-- Fila categoría padre -->
+              <tr class="border-b hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2">
+                    <button mat-icon-button class="!w-7 !h-7 !min-w-0 flex-shrink-0"
+                            (click)="toggle(parent.id_category)"
+                            [matTooltip]="expanded[parent.id_category] ? 'Colapsar' : 'Expandir subcategorías'">
+                      <mat-icon class="text-gray-400 !text-lg">
+                        {{ expanded[parent.id_category] ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}
+                      </mat-icon>
+                    </button>
+
+                    <div class="cat-avatar w-9 h-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-sm flex-shrink-0"
+                         [attr.data-color]="colorIndex(parent.id_category)">
+                      @if (parent.image_url) {
+                        <img [src]="parent.image_url" class="w-full h-full object-cover" alt="" />
+                      } @else {
+                        {{ parent.name.charAt(0).toUpperCase() }}
+                      }
+                    </div>
+
+                    <div>
+                      <div class="font-medium text-gray-800">{{ parent.name }}</div>
+                      @if (parent.description) {
+                        <div class="text-xs text-gray-400">{{ parent.description }}</div>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">Categoría</span>
+                </td>
+                <td class="px-4 py-3 text-gray-400 text-sm">—</td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-1 rounded-full text-xs font-semibold"
+                        [class]="parent.status === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                    {{ parent.status === 'activo' ? 'Activa' : 'Inactiva' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex gap-1">
+                    <button mat-icon-button color="accent" matTooltip="Editar" (click)="onEdit(parent)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" matTooltip="Eliminar" (click)="onDelete(parent)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Filas subcategorías (visibles al expandir) -->
+              @if (expanded[parent.id_category]) {
+                @for (child of children(parent.id_category); track child.id_category) {
+                  <tr class="border-b bg-gray-50/60 hover:bg-gray-100/60 transition-colors">
+                    <td class="px-4 py-3">
+                      <div class="flex items-center gap-2 pl-10">
+                        <div class="cat-avatar w-8 h-8 rounded-full overflow-hidden flex items-center justify-center font-bold text-xs flex-shrink-0"
+                             [attr.data-color]="colorIndex(child.id_category)">
+                          @if (child.image_url) {
+                            <img [src]="child.image_url" class="w-full h-full object-cover" alt="" />
+                          } @else {
+                            {{ child.name.charAt(0).toUpperCase() }}
+                          }
+                        </div>
+                        <div>
+                          <div class="font-medium text-gray-700">{{ child.name }}</div>
+                          @if (child.description) {
+                            <div class="text-xs text-gray-400">{{ child.description }}</div>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium">Subcategoría</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600">{{ parent.name }}</td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-1 rounded-full text-xs font-semibold"
+                            [class]="child.status === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                        {{ child.status === 'activo' ? 'Activa' : 'Inactiva' }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3">
+                      <div class="flex gap-1">
+                        <button mat-icon-button color="accent" matTooltip="Editar" (click)="onEdit(child)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" matTooltip="Eliminar" (click)="onDelete(child)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+
+            @if (parents.length === 0) {
+              <tr>
+                <td colspan="5" class="px-4 py-10 text-center text-gray-400">No hay categorías disponibles</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
