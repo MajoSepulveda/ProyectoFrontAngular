@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
-import { ReportsComponent } from './pages/reports/reports.component';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: FullComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -17,10 +18,6 @@ export const routes: Routes = [
         path: 'dashboard',
         loadChildren: () =>
           import('./pages/pages.routes').then((m) => m.PagesRoutes),
-      },
-      {
-        path: 'reports',
-        component: ReportsComponent,
       },
       {
         path: 'ui-components',
@@ -41,6 +38,18 @@ export const routes: Routes = [
             (m) => m.SocialAnalyticsRoutes
           ),
       },
+      {
+        path: 'users',
+        loadChildren: () =>
+          import('./pages/users/users.routes').then((m) => m.UserRoutes),
+      },
+      {
+        path: 'territorial',
+        loadChildren: () =>
+          import('./pages/territorial/territorial.routes').then(
+            (m) => m.TerritorialRoutes
+          ),
+      },
     ],
   },
   {
@@ -58,6 +67,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'authentication/error',
+    redirectTo: 'authentication/login',
   },
 ];

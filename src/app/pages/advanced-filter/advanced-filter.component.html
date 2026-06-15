@@ -1,0 +1,82 @@
+<div class="advanced-filter-layout">
+  <!-- ─── LEFT PANEL: FILTERS SIDEBAR ────────────── -->
+  <aside class="categories-sidebar">
+    <div class="filter-header">
+      <h3>Categories</h3>
+      <button mat-stroked-button (click)="clearFilters()" *ngIf="tree.length > 0">
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div class="sidebar-state" *ngIf="loading">
+      <mat-spinner diameter="28"></mat-spinner>
+      <span>Loading categories…</span>
+    </div>
+
+    <!-- No categories (shouldn't happen with seeded data, but handled) -->
+    <div class="sidebar-state" *ngIf="!loading && tree.length === 0">
+      <mat-icon>category</mat-icon>
+      <span>No categories available</span>
+    </div>
+
+    <!-- Hierarchical tree rendered from the flattened visible node list -->
+    <div class="tree-container" *ngIf="!loading && tree.length > 0">
+      <div
+        *ngFor="let flat of visibleNodes"
+        class="tree-node"
+        [class.node-selected]="flat.node.selected"
+        [style.padding-left.px]="flat.depth * 20 + 8"
+      >
+        <!-- Expand/collapse button (spacer for leaf nodes) -->
+        <button
+          mat-icon-button
+          class="expand-btn"
+          (click)="toggleNode(flat.node)"
+          *ngIf="flat.node.children.length > 0"
+        >
+          <mat-icon>
+            {{ flat.node.expanded ? 'expand_more' : 'chevron_right' }}
+          </mat-icon>
+        </button>
+        <span class="leaf-spacer" *ngIf="flat.node.children.length === 0"></span>
+
+        <!-- Checkbox with label "Name (Count)" -->
+        <mat-checkbox
+          [checked]="flat.node.selected"
+          (change)="onCheckboxChange(flat.node)"
+        >
+          {{ flat.node.category.name }}
+          <span class="count-badge">{{ flat.node.totalCount }}</span>
+        </mat-checkbox>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── RIGHT PANEL: MAP ─────────────────────────── -->
+  <main class="map-panel">
+    <!-- Loading skeleton -->
+    <div class="panel-state" *ngIf="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Loading categories…</span>
+    </div>
+
+    <!-- Map + info bar (always in DOM, hidden during loading) -->
+    <div class="map-wrapper" [hidden]="loading">
+      <div class="map-info-bar">
+        <span *ngIf="allAnnotations.length === 0">
+          <mat-icon class="info-icon">info</mat-icon> No annotations in the system
+        </span>
+        <span *ngIf="allAnnotations.length > 0 && filteredAnnotations.length === 0">
+          <mat-icon class="info-icon">filter_alt_off</mat-icon> No matching results — adjust your filters
+        </span>
+        <span *ngIf="filteredAnnotations.length > 0">
+          <mat-icon class="info-icon">place</mat-icon>
+          {{ filteredAnnotations.length }} annotation{{ filteredAnnotations.length !== 1 ? 's' : '' }} on map
+        </span>
+      </div>
+
+      <div #mapContainer class="map-container"></div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,19 @@
+<div class="p-6">
+  <mat-card class="cardWithShadow">
+    <mat-card-header class="mb-4 flex justify-between items-center">
+      <mat-card-title class="text-xl font-bold">Barrios</mat-card-title>
+      <button mat-flat-button color="primary" (click)="onCreate()">
+        <mat-icon>add</mat-icon> Crear Barrio
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <app-data-table
+        [columns]="columns"
+        [data]="data"
+        (view)="onView($event)"
+        (edit)="onEdit($event)"
+        (delete)="onDelete($event)">
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
+</div>
