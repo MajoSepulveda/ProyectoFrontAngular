@@ -5,10 +5,7 @@ import * as L from 'leaflet';
 import { AdvancedFilterService } from '../../services/advanced-filter.service';
 import { TreeNode, FlatNode } from '../../models/tree-node';
 import { Annotation } from '../../models/Annotation';
-import { AnnotationCategory } from '../../models/annotation-category';
 import { MapStateService } from '../../services/map-state.service';
-import { Category } from '../../models/Category';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-advanced-filter',
@@ -17,33 +14,11 @@ import { forkJoin } from 'rxjs';
   styleUrl: './advanced-filter.component.scss',
 })
 export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy {
-  // ──────────────────────────────────────────────
-  //  RAW DATA – populated from HTTP or mock source
-  // ──────────────────────────────────────────────
-  allAnnotations: Annotation[] = [];
-  allCategories: Category[] = [];
-  allRelations: AnnotationCategory[] = [];
-
-  // ──────────────────────────────────────────────
-  //  PROCESSED DATA
-  // ──────────────────────────────────────────────
-  /** Root-level tree nodes built from the flat category list. */
-  tree: TreeNode[] = [];
-
-  /**
-   * Lookup map:  categoryId → annotationIds[]
-   * Precomputed once from relations to avoid O(n*m) scans during counting
-   * and filtering.
-   */
-  private categoryAnnotationMap = new Map<number, number[]>();
-
-  /** Reverse lookup: annotationId → categoryIds[] (also derived from relations). */
-  private annotationCategoryMap = new Map<number, number[]>();
-
-  // ──────────────────────────────────────────────
-  //  UI STATE
-  // ──────────────────────────────────────────────
-  loading = true;
+  // ── Pass-through getters (delegate to service) ──
+  get tree()                { return this.filterService.tree; }
+  get allAnnotations()      { return this.filterService.allAnnotations; }
+  get filteredAnnotations() { return this.filterService.filteredAnnotations; }
+  get loading()             { return this.filterService.loading; }
 
   @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
 
@@ -84,127 +59,13 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   // ══════════════════════════════════════════════
 
   /**
-   * Fetches annotations, categories, and relations in parallel via forkJoin.
-   * Once all three arrive, builds the lookup maps, assembles the tree, and
-   * computes the annotation counts per node.
+   * Delegates data fetching & tree building to the service.
+   * When done, refreshes the map markers with the filtered result.
    */
   private loadData(): void {
-    this.loading = true;
-
-    forkJoin([
-      this.filterService.getAnnotations(),
-      this.filterService.getCategories(),
-      this.filterService.getAnnotationCategories(),
-    ]).subscribe({
-      next: ([annotations, categories, relations]) => {
-        this.allAnnotations = annotations;
-        this.allCategories = categories;
-        this.allRelations = relations;
-        this.buildLookupMaps();
-        this.tree = this.buildTree();
-        this.computeCounts(this.tree);
-        this.updateMapMarkers(this.filteredAnnotations);
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
+    this.filterService.loadData().subscribe({
+      next: () => this.updateMapMarkers(this.filteredAnnotations),
     });
-  }
-
-  /**
-   * Builds both the category→annotations and annotation→categories maps from
-   * the raw relation rows.  This drives all downstream counting and filtering
-   * and avoids repeated filtering of the relations array.
-   */
-  private buildLookupMaps(): void {
-    this.categoryAnnotationMap.clear();
-    this.annotationCategoryMap.clear();
-
-    for (const rel of this.allRelations) {
-      /* category → annotation(s) */
-      const annIds = this.categoryAnnotationMap.get(rel.id_category);
-      if (annIds) {
-        annIds.push(rel.id_annotation);
-      } else {
-        this.categoryAnnotationMap.set(rel.id_category, [rel.id_annotation]);
-      }
-
-      /* annotation → category(ies) */
-      const catIds = this.annotationCategoryMap.get(rel.id_annotation);
-      if (catIds) {
-        catIds.push(rel.id_category);
-      } else {
-        this.annotationCategoryMap.set(rel.id_annotation, [rel.id_category]);
-      }
-    }
-  }
-
-  // ══════════════════════════════════════════════
-  //  TREE CONSTRUCTION
-  // ══════════════════════════════════════════════
-
-  /**
-   * Separates the flat category list into roots (id_parent_category === null)
-   * and children, then builds a rooted TreeNode forest.
-   */
-  private buildTree(): TreeNode[] {
-    const roots = this.allCategories.filter(
-      (c) => c.id_parent_category === null
-    );
-    const children = this.allCategories.filter(
-      (c) => c.id_parent_category !== null
-    );
-    return roots.map((root) => this.buildTreeNode(root, children));
-  }
-
-  /**
-   * Recursively constructs a TreeNode by matching each child whose
-   * id_parent_category equals the current category's id_category.
-   */
-  private buildTreeNode(category: Category, children: Category[]): TreeNode {
-    const directChildren = children.filter(
-      (c) => c.id_parent_category === category.id_category
-    );
-
-    return {
-      category,
-      children: directChildren.map((child) =>
-        this.buildTreeNode(child, children)
-      ),
-      directCount: 0,
-      totalCount: 0,
-      expanded: false,
-      selected: false,
-    };
-  }
-
-  // ══════════════════════════════════════════════
-  //  COUNTING ENGINE
-  // ══════════════════════════════════════════════
-
-  /**
-   * Walks the tree bottom-up.  For each node:
-   *   1. Recursively compute children counts first.
-   *   2. directCount = number of annotations whose category ID matches this
-   *      node exactly (derived from the pre-built lookup map).
-   *   3. totalCount = directCount + sum of all children's totalCount.
-   *
-   * This way a root category displays the aggregate of itself and every
-   * subcategory beneath it.
-   */
-  private computeCounts(nodes: TreeNode[]): void {
-    for (const node of nodes) {
-      this.computeCounts(node.children);
-
-      node.directCount = (
-        this.categoryAnnotationMap.get(node.category.id_category) || []
-      ).length;
-
-      node.totalCount =
-        node.directCount +
-        node.children.reduce((sum, child) => sum + child.totalCount, 0);
-    }
   }
 
   // ══════════════════════════════════════════════
@@ -238,73 +99,6 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     node.expanded = false;
     for (const child of node.children) {
       this.clearNodeRecursive(child);
-    }
-  }
-
-  // ══════════════════════════════════════════════
-  //  FILTERING ENGINE
-  // ══════════════════════════════════════════════
-
-  /**
-   * Public getter consumed by the template.  Returns the subset of
-   * annotations that match the currently active category selections,
-   * applying the hierarchy priority rules.
-   *
-   * Empty-state conditions:
-   *   - allAnnotations.length === 0  →  "zero annotations in the system"
-   *   - filteredAnnotations.length === 0  →  "filter yields no results"
-   */
-  get filteredAnnotations(): Annotation[] {
-    if (this.allAnnotations.length === 0) return [];
-
-    const effectiveIds = this.getEffectiveSelectedIds();
-
-    /* No selection active → show everything. */
-    if (effectiveIds.size === 0) return [...this.allAnnotations];
-
-    return this.allAnnotations.filter((ann) => {
-      if (ann.id_annotation == null) return false;
-      const catIds = this.annotationCategoryMap.get(ann.id_annotation) || [];
-      return catIds.some((cid) => effectiveIds.has(cid));
-    });
-  }
-
-  /**
-   * Assembles the set of category IDs that are "effectively selected" by
-   * walking the tree and applying the **Filter Priority Rule**:
-   *
-   *   If a parent Category is selected, its entire subtree is included
-   *   regardless of individual child checkbox states.  This overrides any
-   *   subcategory-level toggles.
-   *
-   * When a node is NOT selected, we recurse into its children to check
-   * whether any of them are individually selected.
-   */
-  private getEffectiveSelectedIds(): Set<number> {
-    const ids = new Set<number>();
-    for (const root of this.tree) {
-      this.collectEffectiveIds(root, ids);
-    }
-    return ids;
-  }
-
-  private collectEffectiveIds(node: TreeNode, ids: Set<number>): void {
-    if (node.selected) {
-      /* Parent selected → grab the whole subtree (priority override). */
-      this.collectAllDescendantIds(node, ids);
-    } else {
-      /* Parent not selected → check children individually. */
-      for (const child of node.children) {
-        this.collectEffectiveIds(child, ids);
-      }
-    }
-  }
-
-  /** Recursively adds this node and every descendant's category ID. */
-  private collectAllDescendantIds(node: TreeNode, ids: Set<number>): void {
-    ids.add(node.category.id_category);
-    for (const child of node.children) {
-      this.collectAllDescendantIds(child, ids);
     }
   }
 
@@ -387,7 +181,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
       const lng = ann.longitude;
       if (lat == null || lng == null || ann.id_annotation == null) continue;
 
-      const catInfo = this.resolveCategoryInfo(ann.id_annotation);
+      const catInfo = this.filterService.resolveCategoryInfo(ann.id_annotation);
 
       const marker = L.marker([lat, lng]);
 
@@ -419,29 +213,6 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   // ──────────────────────────────────────────────
   //  HELPERS
   // ──────────────────────────────────────────────
-
-  /**
-   * Resolves the Category / Subcategory labels for a given annotation
-   * using the pre-built annotationCategoryMap and allCategories list.
-   */
-  private resolveCategoryInfo(annotationId: number): { category: string; subcategory: string } {
-    const catIds = this.annotationCategoryMap.get(annotationId);
-    if (!catIds || catIds.length === 0) {
-      return { category: '—', subcategory: '—' };
-    }
-
-    const cats = catIds
-      .map((id) => this.allCategories.find((c) => c.id_category === id))
-      .filter((c): c is Category => !!c);
-
-    const parents = cats.filter((c) => !c.id_parent_category);
-    const children = cats.filter((c) => !!c.id_parent_category);
-
-    return {
-      category: parents.length ? parents.map((c) => c.name).join(', ') : '—',
-      subcategory: children.length ? children.map((c) => c.name).join(', ') : '—',
-    };
-  }
 
   /** Minimal XSS-safe HTML escaping for popup content. */
   private escapeHtml(text: string): string {
