@@ -19,6 +19,30 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./pages/pages.routes').then((m) => m.PagesRoutes),
       },
+      {
+        path: 'ui-components',
+        loadChildren: () =>
+          import('./pages/ui-components/ui-components.routes').then(
+            (m) => m.UiComponentsRoutes
+          ),
+      },
+      {
+        path: 'extra',
+        loadChildren: () =>
+          import('./pages/extra/extra.routes').then((m) => m.ExtraRoutes),
+      },
+      {
+        path: 'users',
+        loadChildren: () =>
+          import('./pages/users/users.routes').then((m) => m.UserRoutes),
+      },
+      {
+        path: 'territorial',
+        loadChildren: () =>
+          import('./pages/territorial/territorial.routes').then(
+            (m) => m.TerritorialRoutes
+          ),
+      },
     ],
   },
   {
