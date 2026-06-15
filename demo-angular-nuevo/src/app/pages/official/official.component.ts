@@ -25,6 +25,7 @@ export class OfficialComponent implements OnInit {
     { field: 'email',       header: 'Correo' },
     { field: 'phone',       header: 'Teléfono' },
     { field: 'role',        header: 'Rol' },
+    { field: 'id_entity', header: 'ID Entidad' },
     { field: 'status',      header: 'Estado' },
     { field: 'gps_active',  header: 'GPS' },
   ];
@@ -38,12 +39,16 @@ export class OfficialComponent implements OnInit {
       { value: 'activo',      label: 'Activo' },
       { value: 'desactivado', label: 'Desactivado' },
     ]},
-    { key: 'id_entity',  label: 'ID Entidad', type: 'number' },
+    { key: 'id_entity',  label: 'Entidad', type: 'select', options: [] },
     { key: 'gps_active', label: 'GPS Activo', type: 'boolean' },
   ];
 
   ngOnInit(): void {
     this.api.get<any[]>('/officials').subscribe(data => this.data = data);
+    this.api.get<any[]>('/entities').subscribe(entities => {
+      const field = this.editFields.find(f => f.key === 'id_entity');
+      if (field) field.options = entities.map(e => ({ value: e.id_entity, label: e.name }));
+    });
   }
 
   onCreate(): void {

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
 import { ApiService } from 'src/app/services/api.service';
 import { DataTableComponent, TableColumn } from 'src/app/components/table-list/table-list.component';
@@ -16,6 +17,7 @@ import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-
 export class NeighborhoodComponent implements OnInit {
   private api    = inject(ApiService);
   private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   data: any[] = [];
 
@@ -28,7 +30,7 @@ export class NeighborhoodComponent implements OnInit {
 
   editFields: EditField[] = [
     { key: 'name',       label: 'Nombre',    type: 'text' },
-    { key: 'id_commune', label: 'ID Comuna', type: 'number' },
+    { key: 'id_commune', label: 'ID Comuna', type: 'select', options: [] },
     { key: 'status',     label: 'Estado',    type: 'select', options: [
       { value: 'activo',      label: 'Activo' },
       { value: 'desactivado', label: 'Desactivado' },
@@ -37,13 +39,20 @@ export class NeighborhoodComponent implements OnInit {
 
   ngOnInit(): void {
     this.api.get<any[]>('/neighborhoods').subscribe(data => this.data = data);
+    this.api.get<any[]>('/communes').subscribe(communes => {
+      const field = this.editFields.find(f => f.key === 'id_commune');
+      if (field) field.options = communes.map(c => ({ value: c.id_commune, label: c.name }));
+    });
   }
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
       data: { title: 'Crear Barrio', fields: this.editFields },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/neighborhoods', result).subscribe(() => this.ngOnInit());
+      if (result) this.api.post('/neighborhoods', result).subscribe({
+        next: () => this.ngOnInit(),
+        error: () => this.snackBar.open('Ya existe un barrio con ese nombre en esta comuna', 'Cerrar', { duration: 4000 }),
+      });
     });
   }
 

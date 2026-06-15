@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
 import { ApiService } from 'src/app/services/api.service';
 import { DataTableComponent, TableColumn } from 'src/app/components/table-list/table-list.component';
@@ -14,8 +15,9 @@ import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-
   templateUrl: './commune.component.html',
 })
 export class CommuneComponent implements OnInit {
-  private api    = inject(ApiService);
-  private dialog = inject(MatDialog);
+  private api      = inject(ApiService);
+  private dialog   = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   data: any[] = [];
 
@@ -28,7 +30,7 @@ export class CommuneComponent implements OnInit {
 
   editFields: EditField[] = [
     { key: 'name',    label: 'Nombre',    type: 'text' },
-    { key: 'id_city', label: 'ID Ciudad', type: 'number' },
+    { key: 'id_city', label: 'ID Ciudad', type: 'select', options: [] },
     { key: 'status',  label: 'Estado',    type: 'select', options: [
       { value: 'activo',      label: 'Activo' },
       { value: 'desactivado', label: 'Desactivado' },
@@ -37,13 +39,20 @@ export class CommuneComponent implements OnInit {
 
   ngOnInit(): void {
     this.api.get<any[]>('/communes').subscribe(data => this.data = data);
+    this.api.get<any[]>('/cities').subscribe(cities => {
+      const field = this.editFields.find(f => f.key === 'id_city');
+      if (field) field.options = cities.map(c => ({ value: c.id_city, label: c.name }));
+    });
   }
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
       data: { title: 'Crear Comuna', fields: this.editFields },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/communes', result).subscribe(() => this.ngOnInit());
+      if (result) this.api.post('/communes', result).subscribe({
+          next: () => this.ngOnInit(),
+          error: () => this.snackBar.open('Ya existe una comuna con ese nombre en esta ciudad', 'Cerrar', { duration: 4000 }),
+        });
     });
   }
 
