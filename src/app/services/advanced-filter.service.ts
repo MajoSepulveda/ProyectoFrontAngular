@@ -11,6 +11,8 @@ export interface Anotation {
   title: string;
   description: string;
   created_at: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 /**
@@ -102,30 +104,40 @@ export class AdvancedFilterService {
         title: 'Bache en Av. Principal',
         description: 'Socavón en la calzada que impide el tránsito vehicular',
         created_at: '2026-06-01T10:00:00Z',
+        latitude: 4.6500,
+        longitude: -74.0900,
       },
       {
         id_annotation: 2,
         title: 'Farola fundida en Parque Central',
         description: 'Luminaria apagada genera inseguridad nocturna',
         created_at: '2026-06-02T14:30:00Z',
+        latitude: 4.6600,
+        longitude: -74.0950,
       },
       {
         id_annotation: 3,
         title: 'Robo en tienda de conveniencia',
         description: 'Sujeto armado sustrajo mercancía y huyó del lugar',
         created_at: '2026-06-03T08:15:00Z',
+        latitude: 4.6450,
+        longitude: -74.0800,
       },
       {
         id_annotation: 4,
         title: 'Graffiti en muro histórico',
         description: 'Pintura vandálica sobre fachada patrimonial',
         created_at: '2026-06-04T19:45:00Z',
+        latitude: 4.6700,
+        longitude: -74.1000,
       },
       {
         id_annotation: 5,
         title: 'Semáforo averiado en cruce',
         description: 'Intersección sin señalización genera caos vehicular',
         created_at: '2026-06-05T07:30:00Z',
+        latitude: 4.6550,
+        longitude: -74.0850,
       },
     ];
 

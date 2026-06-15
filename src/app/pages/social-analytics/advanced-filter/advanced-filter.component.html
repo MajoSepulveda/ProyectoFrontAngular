@@ -53,63 +53,30 @@
     </div>
   </aside>
 
-  <!-- ─── RIGHT PANEL: MOCK MAP / ANNOTATION LIST ── -->
-  <main class="annotations-panel">
+  <!-- ─── RIGHT PANEL: MAP ─────────────────────────── -->
+  <main class="map-panel">
     <!-- Loading skeleton -->
     <div class="panel-state" *ngIf="loading">
       <mat-spinner diameter="32"></mat-spinner>
-      <span>Loading annotations…</span>
+      <span>Loading categories…</span>
     </div>
 
-    <!--
-      EMPTY STATE 1 – Zero annotations in the system.
-      Displayed when the entire annotation collection is empty regardless
-      of filter state.
-    -->
-    <div class="panel-state" *ngIf="!loading && allAnnotations.length === 0">
-      <mat-icon class="state-icon">info</mat-icon>
-      <h4>No annotations found</h4>
-      <p>There are zero annotations in the system.</p>
-    </div>
-
-    <!--
-      EMPTY STATE 2 – Filter yields no results.
-      Shown only when the collection has items but the active filter
-      excludes everything.
-    -->
-    <div
-      class="panel-state"
-      *ngIf="
-        !loading &&
-        allAnnotations.length > 0 &&
-        filteredAnnotations.length === 0
-      "
-    >
-      <mat-icon class="state-icon">filter_alt_off</mat-icon>
-      <h4>No matching results</h4>
-      <p>The active category / subcategory filter yields no results.</p>
-    </div>
-
-    <!-- Annotations list (non-empty) -->
-    <div class="annotations-list" *ngIf="!loading && filteredAnnotations.length > 0">
-      <div class="list-header">
-        <h4>Annotations ({{ filteredAnnotations.length }})</h4>
+    <!-- Map + info bar (always in DOM, hidden during loading) -->
+    <div class="map-wrapper" [hidden]="loading">
+      <div class="map-info-bar">
+        <span *ngIf="allAnnotations.length === 0">
+          <mat-icon class="info-icon">info</mat-icon> No annotations in the system
+        </span>
+        <span *ngIf="allAnnotations.length > 0 && filteredAnnotations.length === 0">
+          <mat-icon class="info-icon">filter_alt_off</mat-icon> No matching results — adjust your filters
+        </span>
+        <span *ngIf="filteredAnnotations.length > 0">
+          <mat-icon class="info-icon">place</mat-icon>
+          {{ filteredAnnotations.length }} annotation{{ filteredAnnotations.length !== 1 ? 's' : '' }} on map
+        </span>
       </div>
 
-      <mat-card
-        *ngFor="let ann of filteredAnnotations"
-        class="annotation-card"
-      >
-        <mat-card-header>
-          <mat-card-title>{{ ann.title }}</mat-card-title>
-          <mat-card-subtitle>
-            {{ ann.created_at | date : 'medium' }}
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ ann.description }}</p>
-        </mat-card-content>
-      </mat-card>
+      <div #mapContainer class="map-container"></div>
     </div>
   </main>
 </div>

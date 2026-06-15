@@ -10,6 +10,7 @@ import { CommuneService } from 'src/app/services/commune.service';
 import { NeighborhoodService } from 'src/app/services/neighborhood.service';
 import { ColombiaApiService } from 'src/app/services/colombia-api.service';
 import { PointService } from 'src/app/services/point.service';
+import { MapStateService } from 'src/app/services/map-state.service';
 import { Commune } from 'src/app/models/Commune';
 import { Neighborhood } from 'src/app/models/Neighborhood';
 import { Point } from 'src/app/models/Point';
@@ -47,6 +48,7 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
     private communeService: CommuneService,
     private colombiaApi: ColombiaApiService,
     private pointService: PointService,
+    private mapState: MapStateService,
     private http: HttpClient,
     private snackBar: MatSnackBar
   ) {}
@@ -78,6 +80,8 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
       maxZoom: 19,
       attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(this.map);
+
+    this.mapState.setMap(this.map);
 
     this.map.on('click', (e: L.LeafletMouseEvent) => this.onMapClick(e));
   }

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../material.module';
+import * as L from 'leaflet';
 import {
   AdvancedFilterService,
   Anotation,
@@ -8,6 +9,7 @@ import {
   TreeNode,
   FlatNode,
 } from '../../../services/advanced-filter.service';
+import { MapStateService } from '../../../services/map-state.service';
 import { Category } from '../../../models/Category';
 import { forkJoin } from 'rxjs';
 
@@ -17,7 +19,7 @@ import { forkJoin } from 'rxjs';
   templateUrl: './advanced-filter.component.html',
   styleUrl: './advanced-filter.component.scss',
 })
-export class AdvancedFilterComponent implements OnInit {
+export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy {
   // ──────────────────────────────────────────────
   //  RAW DATA – populated from HTTP or mock source
   // ──────────────────────────────────────────────
@@ -53,10 +55,38 @@ export class AdvancedFilterComponent implements OnInit {
    */
   useMockData = true;
 
-  constructor(private filterService: AdvancedFilterService) {}
+  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
+
+  private mapInstance: L.Map | null = null;
+
+  private readonly markerGroup = L.layerGroup();
+  private markerGroupAttached = false;
+
+  constructor(
+    private filterService: AdvancedFilterService,
+    private mapState: MapStateService,
+  ) {
+    if (typeof (L.Icon.Default.prototype as any)._getIconUrl === 'function') {
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+    }
+    L.Icon.Default.mergeOptions({
+      iconUrl: 'assets/images/marker-icon.png',
+      iconRetinaUrl: 'assets/images/marker-icon-2x.png',
+      shadowUrl: 'assets/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41],
+    });
+  }
 
   ngOnInit(): void {
     this.loadData();
+  }
+
+  ngAfterViewInit(): void {
+    this.initMap();
   }
 
   // ══════════════════════════════════════════════
@@ -319,18 +349,117 @@ export class AdvancedFilterComponent implements OnInit {
   }
 
   // ══════════════════════════════════════════════
-  //  MAP INTEGRATION PLACEHOLDER
+  //  MAP INTEGRATION — markerGroup bound to teammate's map
   // ══════════════════════════════════════════════
+
+  /**
+   * Initializes the Leaflet map on the #mapContainer div.
+   * Called once from ngAfterViewInit.
+   */
+  private initMap(): void {
+    if (this.mapInstance) return;
+
+    this.mapInstance = L.map(this.mapContainer.nativeElement, {
+      center: [4.5709, -74.2973],
+      zoom: 6,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(this.mapInstance);
+
+    this.mapState.setMap(this.mapInstance);
+
+    /* data might have loaded before the map was ready → render now */
+    this.updateMapMarkers(this.filteredAnnotations);
+  }
 
   /**
    * Called whenever the filtered set changes (initially on load, and
    * after every selection toggle).
    *
-   * TODO: Bind this stream to refresh map layers/markers once the UI map
-   * library is integrated.  Each Anotation carries geo coordinates that
-   * should be rendered as clustered markers on the map canvas.
+   * Clears & rebuilds markers inside our private markerGroup so we never
+   * touch other layers on the map.
    */
   updateMapMarkers(annotations: Anotation[]): void {
-    // TODO: Bind this stream to refresh map layers/markers
+    if (!this.mapInstance) return;
+
+    /* attach our isolated markerGroup once */
+    if (!this.markerGroupAttached) {
+      this.markerGroup.addTo(this.mapInstance);
+      this.markerGroupAttached = true;
+    }
+
+    /* clear previous annotation markers */
+    this.markerGroup.clearLayers();
+
+    /* rebuild markers from the current filtered set */
+    for (const ann of annotations) {
+      const lat = ann.latitude;
+      const lng = ann.longitude;
+      if (lat == null || lng == null) continue;
+
+      const catInfo = this.resolveCategoryInfo(ann.id_annotation);
+
+      const marker = L.marker([lat, lng]);
+
+      marker.bindPopup(`
+        <div style="font-family:sans-serif;font-size:13px;line-height:1.5;max-width:260px">
+          <strong>${this.escapeHtml(ann.description)}</strong><br>
+          <span style="color:#555">
+            Categoría: ${this.escapeHtml(catInfo.category)}<br>
+            Subcategoría: ${this.escapeHtml(catInfo.subcategory)}
+          </span>
+          <hr style="margin:6px 0;border:none;border-top:1px solid #ddd">
+          <span>🗳 Votos: <em>—</em></span><br>
+          <span>📎 Evidencias: <em>—</em></span>
+        </div>
+      `);
+
+      marker.addTo(this.markerGroup);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.markerGroup.remove();
+    if (this.mapInstance) {
+      this.mapInstance.remove();
+      this.mapInstance = null;
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  //  HELPERS
+  // ──────────────────────────────────────────────
+
+  /**
+   * Resolves the Category / Subcategory labels for a given annotation
+   * using the pre-built annotationCategoryMap and allCategories list.
+   */
+  private resolveCategoryInfo(annotationId: number): { category: string; subcategory: string } {
+    const catIds = this.annotationCategoryMap.get(annotationId);
+    if (!catIds || catIds.length === 0) {
+      return { category: '—', subcategory: '—' };
+    }
+
+    const cats = catIds
+      .map((id) => this.allCategories.find((c) => c.id_category === id))
+      .filter((c): c is Category => !!c);
+
+    const parents = cats.filter((c) => !c.id_parent_category);
+    const children = cats.filter((c) => !!c.id_parent_category);
+
+    return {
+      category: parents.length ? parents.map((c) => c.name).join(', ') : '—',
+      subcategory: children.length ? children.map((c) => c.name).join(', ') : '—',
+    };
+  }
+
+  /** Minimal XSS-safe HTML escaping for popup content. */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 }
