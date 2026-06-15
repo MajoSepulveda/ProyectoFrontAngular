@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Anotation } from '../../../models/Anotation';
 import { Citizen } from '../../../models/Citizen';
 import { CreateVotePayload } from '../../../models/Vote';
@@ -15,14 +16,11 @@ import { AnnotationVoteService } from '../../../services/annotation-vote.service
   styleUrls: ['./annotation-vote.component.scss'],
 })
 export class AnnotationVoteComponent implements OnInit {
-  /** All annotations fetched from the backend */
-  annotations: Anotation[] = [];
+  /** The annotation being rated — loaded from route param :id */
+  selectedAnnotation: Anotation | null = null;
 
   /** The simulated logged-in citizen (id_citizen = 1 for testing) */
   activeCitizen: Citizen | null = null;
-
-  /** Currently selected annotation (simulates a map-marker click) */
-  selectedAnnotation: Anotation | null = null;
 
   /**
    * Tracks annotation IDs for which the active citizen has already voted.
@@ -46,19 +44,28 @@ export class AnnotationVoteComponent implements OnInit {
   formError: string = '';
 
   // ── UI state ────────────────────────────────────────────────
-  loadingAnnotations = false;
+  loading = false;
   loadingCitizen = false;
   submitting = false;
   error = '';
 
-  constructor(private annotationVoteService: AnnotationVoteService) {}
+  constructor(
+    private annotationVoteService: AnnotationVoteService,
+    private route: ActivatedRoute,
+    private router: Router,
+  ) {}
 
   // ────────────────────────────────────────────────────────────
   // Lifecycle
   // ────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
-    this.loadAnnotations();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      this.router.navigate(['/dashboard/annotations']);
+      return;
+    }
+    this.loadAnnotation(Number(id));
     this.loadActiveCitizen();
   }
 
@@ -66,16 +73,16 @@ export class AnnotationVoteComponent implements OnInit {
   // Data fetching
   // ────────────────────────────────────────────────────────────
 
-  private loadAnnotations(): void {
-    this.loadingAnnotations = true;
-    this.annotationVoteService.getAnnotations().subscribe({
-      next: (data) => {
-        this.annotations = data;
-        this.loadingAnnotations = false;
+  private loadAnnotation(id: number): void {
+    this.loading = true;
+    this.annotationVoteService.getAnnotationById(id).subscribe({
+      next: (annotation) => {
+        this.selectedAnnotation = annotation;
+        this.loading = false;
       },
       error: () => {
-        this.error = 'No se pudieron cargar las anotaciones.';
-        this.loadingAnnotations = false;
+        this.error = 'No se pudo cargar la anotación solicitada.';
+        this.loading = false;
       },
     });
   }
@@ -93,21 +100,6 @@ export class AnnotationVoteComponent implements OnInit {
         this.loadingCitizen = false;
       },
     });
-  }
-
-  // ────────────────────────────────────────────────────────────
-  // Map integration placeholder
-  // ────────────────────────────────────────────────────────────
-
-  /**
-   * Called when a user clicks an annotation (via the mock list below,
-   * or eventually a map-marker click event from OpenLayers / Leaflet).
-   * Sets the selected annotation so the vote form becomes visible.
-   * TODO: Bind to map marker click event.
-   */
-  selectAnnotationFromMap(annotation: Anotation): void {
-    this.selectedAnnotation = annotation;
-    this.resetForm();
   }
 
   // ────────────────────────────────────────────────────────────

@@ -36,15 +36,16 @@ export class AnnotationVoteService {
 
   /** GET /api/annotations — retrieve all map annotations */
   getAnnotations(): Observable<Anotation[]> {
-    // 🔁 Mock fallback:
-    // return of(MOCK_ANNOTATIONS);
     return this.apiService.get<Anotation[]>(this.annotationsEndpoint);
+  }
+
+  /** GET /api/annotations/{id} — retrieve a single annotation by ID */
+  getAnnotationById(id: number): Observable<Anotation> {
+    return this.apiService.get<Anotation>(`${this.annotationsEndpoint}/${id}`);
   }
 
   /** GET /api/citizens/{id} — retrieve a single citizen profile */
   getCitizenById(id: number): Observable<Citizen> {
-    // 🔁 Mock fallback:
-    // return of(MOCK_CITIZEN);
     return this.apiService.get<Citizen>(`${this.citizensEndpoint}/${id}`);
   }
 

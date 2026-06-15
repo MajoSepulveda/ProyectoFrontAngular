@@ -4,6 +4,11 @@ import { AnnotationVoteComponent } from './annotation-vote/annotation-vote.compo
 export const SocialAnalyticsRoutes: Routes = [
   {
     path: '',
+    redirectTo: '/dashboard/annotations',
+    pathMatch: 'full',
+  },
+  {
+    path: 'vote/:id',
     component: AnnotationVoteComponent,
     data: {
       title: 'Calificar Anotación',

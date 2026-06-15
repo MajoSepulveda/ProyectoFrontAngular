@@ -1,11 +1,12 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '../../material.module';
+import { MaterialModule } from '../../../material.module';
+import { Router } from '@angular/router';
 import * as L from 'leaflet';
-import { AdvancedFilterService } from '../../services/advanced-filter.service';
-import { TreeNode, FlatNode } from '../../models/tree-node';
-import { Annotation } from '../../models/Annotation';
-import { MapStateService } from '../../services/map-state.service';
+import { AdvancedFilterService } from '../../../services/advanced-filter.service';
+import { TreeNode, FlatNode } from '../../../models/tree-node';
+import { Annotation } from '../../../models/Annotation';
+import { MapStateService } from '../../../services/map-state.service';
 
 @Component({
   selector: 'app-advanced-filter',
@@ -30,6 +31,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   constructor(
     private filterService: AdvancedFilterService,
     private mapState: MapStateService,
+    private router: Router,
   ) {
     if (typeof (L.Icon.Default.prototype as any)._getIconUrl === 'function') {
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -152,6 +154,21 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
 
     this.mapState.setMap(this.mapInstance);
 
+    /* Navigate to vote page when user clicks "Rate this Annotation" inside a popup */
+    this.mapInstance.on('popupopen', (e: L.PopupEvent) => {
+      const popupEl = e.popup.getElement();
+      if (!popupEl) return;
+      const btn = popupEl.querySelector('.btn-rate') as HTMLElement | null;
+      if (btn) {
+        btn.onclick = () => {
+          const id = btn.getAttribute('data-id');
+          if (id) {
+            this.router.navigate(['/social-analytics/vote', id]);
+          }
+        };
+      }
+    });
+
     /* data might have loaded before the map was ready → render now */
     this.updateMapMarkers(this.filteredAnnotations);
   }
@@ -195,6 +212,11 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
           <hr style="margin:6px 0;border:none;border-top:1px solid #ddd">
           <span>🗳 Votos: <em>—</em></span><br>
           <span>📎 Evidencias: <em>—</em></span>
+          <hr style="margin:6px 0;border:none;border-top:1px solid #ddd">
+          <button class="btn-rate" data-id="${ann.id_annotation}"
+                  style="width:100%;padding:6px 0;cursor:pointer;background:#1976d2;color:#fff;border:none;border-radius:4px;font-size:13px">
+            ⭐ Rate this Annotation
+          </button>
         </div>
       `);
 

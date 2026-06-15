@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { StarterComponent } from './starter/starter.component';
 import { ReportsComponent } from './reports/reports.component';
-import { AdvancedFilterComponent } from './advanced-filter/advanced-filter.component';
+import { AdvancedFilterComponent } from './social-analytics/advanced-filter/advanced-filter.component';
 
 import { CategoryComponent } from './category/category.component';
 import { CitizenComponent } from './citizen/citizen.component';
