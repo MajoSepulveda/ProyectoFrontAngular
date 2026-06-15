@@ -66,7 +66,11 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
    */
   private loadData(): void {
     this.filterService.loadData().subscribe({
-      next: () => this.updateMapMarkers(this.filteredAnnotations),
+      next: () => {
+        this.updateMapMarkers(this.filteredAnnotations);
+        /* Container is now visible (loading=false) — force Leaflet to recalculate size */
+        setTimeout(() => this.mapInstance?.invalidateSize(), 100);
+      },
     });
   }
 
@@ -199,6 +203,8 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
       if (lat == null || lng == null || ann.id_annotation == null) continue;
 
       const catInfo = this.filterService.resolveCategoryInfo(ann.id_annotation);
+      const voteInfo = this.filterService.resolveVoteInfo(ann.id_annotation);
+      const evidenceCount = this.filterService.resolveEvidenceCount(ann.id_annotation);
 
       const marker = L.marker([lat, lng]);
 
@@ -210,8 +216,8 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
             Subcategoría: ${this.escapeHtml(catInfo.subcategory)}
           </span>
           <hr style="margin:6px 0;border:none;border-top:1px solid #ddd">
-          <span>🗳 Votos: <em>—</em></span><br>
-          <span>📎 Evidencias: <em>—</em></span>
+          <span>🗳 Votos: ${voteInfo.count} (⭐ ${voteInfo.average})</span><br>
+          <span>📎 Evidencias: ${evidenceCount}</span>
           <hr style="margin:6px 0;border:none;border-top:1px solid #ddd">
           <button class="btn-rate" data-id="${ann.id_annotation}"
                   style="width:100%;padding:6px 0;cursor:pointer;background:#1976d2;color:#fff;border:none;border-radius:4px;font-size:13px">

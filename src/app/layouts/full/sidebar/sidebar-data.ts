@@ -19,6 +19,11 @@ export const navItems: NavItem[] = [
     navCap: 'Gestión',
   },
   {
+    displayName: 'Annotations',
+    iconName: 'solar:notes-line-duotone',
+    route: '/dashboard/annotations',
+  },
+  {
     displayName: 'Category',
     iconName: 'solar:tag-line-duotone',
     route: '/dashboard/category',

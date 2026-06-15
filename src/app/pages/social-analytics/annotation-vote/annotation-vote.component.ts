@@ -7,6 +7,7 @@ import { Anotation } from '../../../models/Anotation';
 import { Citizen } from '../../../models/Citizen';
 import { CreateVotePayload } from '../../../models/Vote';
 import { AnnotationVoteService } from '../../../services/annotation-vote.service';
+import { SecurityService } from '../../../services/securityService';
 
 @Component({
   selector: 'app-annotation-vote',
@@ -53,6 +54,7 @@ export class AnnotationVoteComponent implements OnInit {
     private annotationVoteService: AnnotationVoteService,
     private route: ActivatedRoute,
     private router: Router,
+    private security: SecurityService,
   ) {}
 
   // ────────────────────────────────────────────────────────────
@@ -87,11 +89,22 @@ export class AnnotationVoteComponent implements OnInit {
     });
   }
 
-  /** Fetch citizen with id = 1 to simulate a logged-in voter */
+  /** Fetch citizen by matching email from the logged-in Usuario session */
   private loadActiveCitizen(): void {
+    const usuario = this.security.obtenerUsuarioActual();
+    const email = usuario?.email;
+    if (!email) {
+      this.error = 'No se pudo identificar al ciudadano.';
+      return;
+    }
     this.loadingCitizen = true;
-    this.annotationVoteService.getCitizenById(1).subscribe({
+    this.annotationVoteService.getCitizenByEmail(email).subscribe({
       next: (citizen) => {
+        if (!citizen) {
+          this.error = 'No se encontró un ciudadano asociado a tu cuenta.';
+          this.loadingCitizen = false;
+          return;
+        }
         this.activeCitizen = citizen;
         this.loadingCitizen = false;
       },

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ApiService } from './api.service';
 import { Anotation } from '../models/Anotation';
 import { Citizen } from '../models/Citizen';
@@ -42,6 +42,13 @@ export class AnnotationVoteService {
   /** GET /api/annotations/{id} — retrieve a single annotation by ID */
   getAnnotationById(id: number): Observable<Anotation> {
     return this.apiService.get<Anotation>(`${this.annotationsEndpoint}/${id}`);
+  }
+
+  /** GET /api/citizens — retrieve all citizens and find by email (client-side filter) */
+  getCitizenByEmail(email: string): Observable<Citizen | undefined> {
+    return this.apiService.get<Citizen[]>(this.citizensEndpoint).pipe(
+      map(citizens => citizens.find(c => c.email === email))
+    );
   }
 
   /** GET /api/citizens/{id} — retrieve a single citizen profile */

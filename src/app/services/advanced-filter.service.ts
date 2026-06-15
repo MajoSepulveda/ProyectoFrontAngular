@@ -6,6 +6,8 @@ import { ApiService } from './api.service';
 import { Annotation } from '../models/Annotation';
 import { AnnotationCategory } from '../models/annotation-category';
 import { Category } from '../models/Category';
+import { Vote } from '../models/Vote';
+import { Evidence } from '../models/Evidence';
 import { TreeNode } from '../models/tree-node';
 
 @Injectable({
@@ -30,6 +32,12 @@ export class AdvancedFilterService {
   /** Reverse lookup: annotationId → categoryIds[] */
   private annotationCategoryMap = new Map<number, number[]>();
 
+  /** Vote info per annotation: annotationId → { count, average } */
+  private voteInfoMap = new Map<number, { count: number; average: number }>();
+
+  /** Evidence count per annotation: annotationId → count */
+  private evidenceCountMap = new Map<number, number>();
+
   // ── UI STATE ──────────────────────────────────
   loading = true;
 
@@ -50,15 +58,26 @@ export class AdvancedFilterService {
     return this.api.get<AnnotationCategory[]>(this.annotationCategoriesEndpoint);
   }
 
+  /** GET all votes from the backend. */
+  getVotes(): Observable<Vote[]> {
+    return this.api.get<Vote[]>('/votes');
+  }
+
+  /** GET all evidences from the backend. */
+  getEvidences(): Observable<Evidence[]> {
+    return this.api.get<Evidence[]>('/evidences');
+  }
+
   // ══════════════════════════════════════════════
   //  DATA LOADING
   // ══════════════════════════════════════════════
 
   /**
-   * Fetches annotations, categories, and relations in parallel via forkJoin.
-   * Once all three arrive, builds the lookup maps, assembles the tree, and
-   * computes the annotation counts per node. Returns an observable that emits
-   * when processing is complete.
+   * Fetches annotations, categories, relations, votes, and evidences
+   * in parallel via forkJoin.
+   * Once all arrive, builds the lookup maps, assembles the tree, computes
+   * annotation counts, and aggregates vote/evidence stats.
+   * Returns an observable that emits when processing is complete.
    */
   loadData(): Observable<void> {
     this.loading = true;
@@ -67,14 +86,18 @@ export class AdvancedFilterService {
       this.getAnnotations(),
       this.getCategories(),
       this.getAnnotationCategories(),
+      this.getVotes(),
+      this.getEvidences(),
     ]).pipe(
-      tap(([annotations, categories, relations]) => {
+      tap(([annotations, categories, relations, votes, evidences]) => {
         this.allAnnotations = annotations;
         this.allCategories = categories;
         this.allRelations = relations;
         this.buildLookupMaps();
         this.tree = this.buildTree();
         this.computeCounts(this.tree);
+        this.buildVoteInfoMap(votes);
+        this.buildEvidenceCountMap(evidences);
         this.loading = false;
       }),
       map(() => void 0),
@@ -239,6 +262,53 @@ export class AdvancedFilterService {
     for (const child of node.children) {
       this.collectAllDescendantIds(child, ids);
     }
+  }
+
+  // ══════════════════════════════════════════════
+  //  VOTE / EVIDENCE AGGREGATION
+  // ══════════════════════════════════════════════
+
+  /**
+   * Builds a map of annotationId → { count, average } from the raw votes list.
+   */
+  private buildVoteInfoMap(votes: Vote[]): void {
+    this.voteInfoMap.clear();
+    for (const v of votes) {
+      const entry = this.voteInfoMap.get(v.id_annotation) ?? { count: 0, average: 0 };
+      entry.count++;
+      entry.average += v.stars;
+      this.voteInfoMap.set(v.id_annotation, entry);
+    }
+    for (const [, entry] of this.voteInfoMap) {
+      entry.average = Math.round((entry.average / entry.count) * 10) / 10;
+    }
+  }
+
+  /**
+   * Builds a map of annotationId → evidence count from the raw evidences list.
+   */
+  private buildEvidenceCountMap(evidences: Evidence[]): void {
+    this.evidenceCountMap.clear();
+    for (const e of evidences) {
+      this.evidenceCountMap.set(
+        e.id_annotation,
+        (this.evidenceCountMap.get(e.id_annotation) ?? 0) + 1
+      );
+    }
+  }
+
+  /**
+   * Returns vote info (count + average stars) for a given annotation.
+   */
+  resolveVoteInfo(annotationId: number): { count: number; average: number } {
+    return this.voteInfoMap.get(annotationId) ?? { count: 0, average: 0 };
+  }
+
+  /**
+   * Returns evidence count for a given annotation.
+   */
+  resolveEvidenceCount(annotationId: number): number {
+    return this.evidenceCountMap.get(annotationId) ?? 0;
   }
 
   // ──────────────────────────────────────────────
