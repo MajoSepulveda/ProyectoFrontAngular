@@ -1,0 +1,51 @@
+<h2 mat-dialog-title class="font-bold text-lg">{{ dialogData.title }}</h2>
+
+<mat-dialog-content style="width:520px">
+  <form [formGroup]="form" class="flex flex-col gap-3 py-2">
+    @for (field of dialogData.fields; track field.key) {
+      @if (field.type === 'boolean') {
+        <div class="flex items-center gap-3 py-1">
+          <mat-slide-toggle [formControlName]="field.key">{{ field.label }}</mat-slide-toggle>
+        </div>
+      } @else if (field.type === 'select') {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ field.label }}</mat-label>
+          <mat-select [formControlName]="field.key">
+            @for (opt of field.options ?? []; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      } @else if (field.type === 'image') {
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-600">{{ field.label }}</label>
+          <div class="flex items-center gap-3">
+            <button type="button" mat-stroked-button (click)="fileInput.click()">
+              <mat-icon>upload</mat-icon> Subir imagen
+            </button>
+            <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, field.key)" />
+          </div>
+          @if (imagePreviews[field.key]) {
+            <img [src]="imagePreviews[field.key]" class="w-24 h-24 rounded object-cover border border-gray-200" alt="preview" />
+          }
+        </div>
+      } @else {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ field.label }}</mat-label>
+          <input matInput
+            [formControlName]="field.key"
+            [type]="field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : 'text'"
+            [readonly]="field.readonly ?? false" />
+          @if (field.type === 'email' && form.get(field.key)?.hasError('email') && form.get(field.key)?.touched) {
+            <mat-error>Ingresa un correo electrónico válido</mat-error>
+          }
+        </mat-form-field>
+      }
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="gap-2">
+  <button mat-stroked-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirm()">Guardar</button>
+</mat-dialog-actions>

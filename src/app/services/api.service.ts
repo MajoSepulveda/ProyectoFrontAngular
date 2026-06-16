@@ -13,7 +13,7 @@ export interface ApiResponse<T> {
 })
 export class ApiService {
 
-  private readonly baseUrl = 'http://localhost:5000/api';
+  readonly baseUrl = 'http://localhost:5000/api';
 
   constructor(private http: HttpClient) {}
 

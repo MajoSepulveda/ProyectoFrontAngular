@@ -3,7 +3,7 @@ import { Observable, interval, map } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { Official } from '../../models/Official';
 import { ApiService } from '../../services/api.service';
-import { environment } from '../../../environment/enviroment';
+import { environment } from '../../../environments/environment';
 
 /** Shape of the POST /tracking/start response */
 export interface TrackingStartResponse {

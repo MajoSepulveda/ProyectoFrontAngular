@@ -3,33 +3,51 @@
     <div class="grid grid-cols-12 gap-6">
       <div class="lg:col-span-6 col-span-12 flex items-stretch">
         <div class="w-full p-10 flex flex-col justify-center aling-center">
-          <div class="text-center">Your Social Campaigns</div>
+          <div class="text-center">Problemas territoriales</div>
 
           <form class="mt-8">
-            <mat-label class="mat-subtitle-2 text-sm font-semibold mb-3 block text-start">Username</mat-label>
-            <mat-form-field appearance="outline" class="w-full" color="primary">
-              <input matInput />
-            </mat-form-field>
+            <div class="mt-6">
 
-            <mat-label class="mat-subtitle-2 text-sm font-semibold mb-3 block text-start">Password</mat-label>
-            <mat-form-field appearance="outline" class="w-full" color="primary">
-              <input matInput type="password" />
-            </mat-form-field>
+                <div class="text-center mb-4">
+                  Continúa con
+                </div>
 
-            <div class="flex items-center justify-between mb-3">
-              <mat-checkbox color="primary">Remember this Device</mat-checkbox>
-              <a [routerLink]="['/']" class="text-primary font-semibold no-underline text-sm">Forgot Password
-                ?</a>
-            </div>
-            <a [routerLink]="['/']" mat-flat-button color="primary" class="w-full">
-              Sign In
-            </a>
+                <div class="flex flex-col gap-3">
 
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="w-full"
+                    (click)="loginConGoogle()">
+
+                    Continuar con Google
+
+                  </button>
+
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="w-full"
+                    (click)="loginConMicrosoft()">
+
+                    Continuar con Microsoft
+
+                  </button>
+
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="w-full"
+                    (click)="loginConGithub()">
+
+                    Continuar con GitHub
+
+                  </button>
+
+                </div>
+
+              </div>
           </form>
-          <span class="block font-medium text-center mt-6">New to Modernize?
-            <a [routerLink]="['/authentication/register']" class="no-underline text-primary font-medium text-sm">
-              Create an account</a>
-          </span>
         </div>
       </div>
       <div class="lg:col-span-6 col-span-12 relative hidden lg:flex justify-center items-stretch bg-light p-5">

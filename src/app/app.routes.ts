@@ -3,11 +3,13 @@ import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { OfficialTrackingComponent } from './pages/social-analytics/official-tracking.component';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: FullComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -18,10 +20,6 @@ export const routes: Routes = [
         path: 'dashboard',
         loadChildren: () =>
           import('./pages/pages.routes').then((m) => m.PagesRoutes),
-      },
-      {
-        path: 'reports',
-        component: ReportsComponent,
       },
       {
         path: 'ui-components',
@@ -56,6 +54,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'authentication/error',
+    redirectTo: 'authentication/login',
   },
 ];
