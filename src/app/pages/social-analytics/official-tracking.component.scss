@@ -1,31 +1,151 @@
-h2 {
-  margin-bottom: 1rem;
+.tracking-layout {
+  display: flex;
+  gap: 24px;
+  min-height: calc(100vh - 48px);
+  padding: 24px;
 }
 
-label {
-  margin-right: 0.5rem;
-  font-weight: 600;
+.tracking-sidebar {
+  width: 320px;
+  min-width: 280px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+  padding: 20px;
+  overflow-y: auto;
 }
 
-select {
-  padding: 0.25rem 0.5rem;
-  margin-bottom: 1rem;
+.sidebar-header {
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
 }
 
-.error {
+.filter-row {
+  margin-bottom: 16px;
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #475569;
+  }
+
+  select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+  }
+}
+
+.sidebar-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+  color: rgba(15, 23, 42, 0.56);
+  font-size: 14px;
+}
+
+.error-state {
   color: #d32f2f;
 }
 
-ul {
+.list-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.official-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
-li {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #e0e0e0;
+.official-item {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 8px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(15, 23, 42, 0.04);
+  }
 }
 
-small {
-  color: #757575;
+.official-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.official-meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.official-time {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* ─── RIGHT PANEL: MAP ─────────────────────────── */
+.map-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.map-info-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-bottom: 0;
+  border-radius: 20px 20px 0 0;
+  font-size: 13px;
+  color: #475569;
+  gap: 6px;
+}
+
+.map-container {
+  flex: 1;
+  min-height: 500px;
+  border-radius: 0 0 20px 20px;
+  border: 1px solid #e2e8f0;
+  border-top: 0;
+  overflow: hidden;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 768px) {
+  .tracking-layout {
+    flex-direction: column;
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .tracking-sidebar {
+    width: 100%;
+    min-width: unset;
+  }
 }

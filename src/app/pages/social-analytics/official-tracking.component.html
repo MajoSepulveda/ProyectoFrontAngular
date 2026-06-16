@@ -1,45 +1,80 @@
-<h2>Ver ubicación en tiempo real de funcionarios</h2>
+<div class="tracking-layout">
+  <!-- ─── LEFT PANEL: FILTER & LIST ────────────── -->
+  <aside class="tracking-sidebar">
+    <div class="sidebar-header">
+      <h3>Tracking de Funcionarios</h3>
+    </div>
 
-<!-- Entity filter dropdown -->
-<div>
-  <label for="entity-select">Filtrar por entidad:</label>
-  <select id="entity-select" [ngModel]="selectedEntityId" (ngModelChange)="selectedEntityId = $event; onEntityChange()">
-    <option [ngValue]="null">Todas las entidades</option>
-    @for (entity of testEntities; track entity.id_entity) {
-      <option [ngValue]="entity.id_entity">{{ entity.name }}</option>
+    <!-- Entity filter -->
+    <div class="filter-row">
+      <label for="entity-select">Filtrar por entidad:</label>
+      <select id="entity-select" [ngModel]="selectedEntityId" (ngModelChange)="selectedEntityId = $event; onEntityChange()">
+        <option [ngValue]="null">Todas las entidades</option>
+        @for (entity of testEntities; track entity.id_entity) {
+          <option [ngValue]="entity.id_entity">{{ entity.name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Loading state -->
+    @if (loading) {
+      <div class="sidebar-state">
+        <span>Cargando funcionarios…</span>
+      </div>
     }
-  </select>
+
+    <!-- Error state -->
+    @if (error) {
+      <div class="sidebar-state error-state">
+        <span>{{ error }}</span>
+      </div>
+    }
+
+    <!-- Official list -->
+    @if (!loading && !error) {
+      <div class="list-header">
+        <span>Funcionarios activos ({{ filteredOfficials.length }})</span>
+      </div>
+
+      @if (filteredOfficials.length === 0) {
+        <div class="sidebar-state">
+          <span>No hay funcionarios activos para la entidad seleccionada.</span>
+        </div>
+      }
+
+      <ul class="official-list">
+        @for (official of filteredOfficials; track official.id_official) {
+          <li class="official-item">
+            <div class="official-name">{{ official.name }}</div>
+            <div class="official-meta">
+              Lat: {{ official.last_latitude.toFixed(4) }},
+              Lng: {{ official.last_longitude.toFixed(4) }}
+            </div>
+            <div class="official-meta">
+              GPS: {{ official.gps_active ? 'Activo' : 'Inactivo' }}
+            </div>
+            <div class="official-time">
+              Última actualización: {{ official.last_gps_update }}
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </aside>
+
+  <!-- ─── RIGHT PANEL: MAP ─────────────────────────── -->
+  <main class="map-panel">
+    <!-- Info bar -->
+    <div class="map-info-bar">
+      @if (filteredOfficials.length > 0) {
+        <span>
+          {{ filteredOfficials.length }} funcionario{{ filteredOfficials.length !== 1 ? 's' : '' }} en el mapa
+        </span>
+      } @else {
+        <span>Esperando datos de localización…</span>
+      }
+    </div>
+
+    <div #mapContainer class="map-container"></div>
+  </main>
 </div>
-
-<!-- Loading state -->
-@if (loading) {
-  <p>Cargando funcionarios…</p>
-}
-
-<!-- Error state -->
-@if (error) {
-  <p class="error">{{ error }}</p>
-}
-
-<!-- Live tracking list -->
-@if (!loading && !error) {
-  <h3>Funcionarios activos ({{ filteredOfficials.length }})</h3>
-
-  @if (filteredOfficials.length === 0) {
-    <p>No hay funcionarios activos para la entidad seleccionada.</p>
-  }
-
-  <ul>
-    @for (official of filteredOfficials; track official.id_official) {
-      <li>
-        <strong>{{ official.name }}</strong>
-        — Lat: {{ official.last_latitude.toFixed(4) }},
-        Lng: {{ official.last_longitude.toFixed(4) }}
-        — Estado: {{ official.status }}
-        — GPS: {{ official.gps_active ? 'Activo' : 'Inactivo' }}
-        <br />
-        <small>Última actualización: {{ official.last_gps_update }}</small>
-      </li>
-    }
-  </ul>
-}

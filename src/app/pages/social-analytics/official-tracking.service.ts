@@ -50,29 +50,50 @@ export class OfficialTrackingService {
   }
 
   /**
-   * Opens a Socket.IO connection and subscribes to the 'official-locations' topic.
-   * Each emission carries an array of updated Official objects with live coordinates.
+   * Returns an Observable that emits an array of updated Official objects with
+   * live GPS coordinates every 3 seconds.
+   *
+   * **Local development** — uses an RxJS interval to simulate GPS drift so you
+   * can test the UI without a running WebSocket server.
+   *
+   * **Production** — replace the body of this method with the real Socket.IO
+   * stream (commented below) that connects to the backend and listens for
+   * 'official-locations' events.
    */
   connectToTracking(): Observable<Official[]> {
-    // ───────────────────────────────────────────────
+    // ═══════════════════════════════════════════════
+    //  MOCK STREAM — simulates GPS coordinate updates
+    // ═══════════════════════════════════════════════
+    return interval(3000).pipe(
+      map(() =>
+        this.latestOfficials.map((o) => ({
+          ...o,
+          // Randomly nudge lat/lng by ~0.005° to simulate movement
+          last_latitude: o.last_latitude + (Math.random() - 0.5) * 0.005,
+          last_longitude: o.last_longitude + (Math.random() - 0.5) * 0.005,
+          last_gps_update: new Date().toISOString(),
+        }))
+      )
+    );
+
+    // ═══════════════════════════════════════════════
     //  REAL SOCKET.IO STREAM (production)
-    //  Connects to the backend socket and listens for
-    //  'official-locations' events.
-    // ───────────────────────────────────────────────
-    this.socket = io(environment.socketUrl, { transports: ['websocket'] });
-    return new Observable<Official[]>((observer) => {
-      this.socket!.on('official-locations', (data: Official[]) => {
-        observer.next(data);
-      });
-      this.socket!.on('connect_error', (err: Error) => {
-        console.error('[OfficialTrackingService] Socket connect error:', err.message);
-      });
-      // Teardown: disconnect the socket when the consumer unsubscribes
-      return (): void => {
-        this.socket?.disconnect();
-        this.socket = null;
-      };
-    });
+    //  Uncomment below and delete the mock above when
+    //  your backend WebSocket server is running.
+    // ═══════════════════════════════════════════════
+    // this.socket = io(environment.socketUrl, { transports: ['websocket'] });
+    // return new Observable<Official[]>((observer) => {
+    //   this.socket!.on('official-locations', (data: Official[]) => {
+    //     observer.next(data);
+    //   });
+    //   this.socket!.on('connect_error', (err: Error) => {
+    //     console.error('[OfficialTrackingService] Socket connect error:', err.message);
+    //   });
+    //   return (): void => {
+    //     this.socket?.disconnect();
+    //     this.socket = null;
+    //   };
+    // });
   }
 
   /**
@@ -94,30 +115,5 @@ export class OfficialTrackingService {
     this.latestOfficials = officials;
   }
 
-  /*
-   * ═══════════════════════════════════════════════════════════════
-   *  MOCK STREAM — For frontend-only testing
-   *
-   *  Replace the body of connectToTracking() with the implementation
-   *  below to simulate live GPS coordinate drifts every 3 seconds
-   *  via RxJS interval. No backend or WebSocket server required.
-   *
-   *  NOTE: Call setLatestOfficials() before connectToTracking() so
-   *  the mock has real officials to mutate.
-   * ═══════════════════════════════════════════════════════════════
-   *
-   * connectToTracking(): Observable<Official[]> {
-   *   return interval(3000).pipe(
-   *     map(() =>
-   *       this.latestOfficials.map((o) => ({
-   *         ...o,
-   *         // Randomly nudge lat/lng by ~0.005° to simulate movement
-   *         last_latitude: o.last_latitude + (Math.random() - 0.5) * 0.005,
-   *         last_longitude: o.last_longitude + (Math.random() - 0.5) * 0.005,
-   *         last_gps_update: new Date().toISOString(),
-   *       }))
-   *     )
-   *   );
-   * }
-   */
+
 }

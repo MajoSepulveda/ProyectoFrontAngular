@@ -1,8 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import * as L from 'leaflet';
 import { Subscription } from 'rxjs';
 import { Official } from '../../models/Official';
 import { OfficialTrackingService } from './official-tracking.service';
+import { MapStateService } from '../../services/map-state.service';
 
 @Component({
   selector: 'app-official-tracking',
@@ -11,33 +13,61 @@ import { OfficialTrackingService } from './official-tracking.service';
   templateUrl: './official-tracking.component.html',
   styleUrls: ['./official-tracking.component.scss'],
 })
-export class OfficialTrackingComponent implements OnInit, OnDestroy {
-  /** Full list of officials fetched from the API */
+export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
+
   allOfficials: Official[] = [];
-  /** Officials rendered in the view after entity filtering */
   filteredOfficials: Official[] = [];
-  /** Currently selected entity filter (null = show all active) */
   selectedEntityId: number | null = null;
 
   loading = false;
   error: string | null = null;
 
-  /** Hardcoded entities for the verification filter dropdown */
   readonly testEntities = [
     { id_entity: 1, name: 'Secretaría de Planeación' },
     { id_entity: 2, name: 'Secretaría de Movilidad' },
     { id_entity: 3, name: 'Secretaría de Ambiente' },
   ];
 
+  private mapInstance: L.Map | null = null;
+  private officialGroup = L.layerGroup();
+  private groupAdded = false;
+
   private trackingSub: Subscription | null = null;
 
-  constructor(private trackingService: OfficialTrackingService) {}
+  constructor(
+    private trackingService: OfficialTrackingService,
+    private mapState: MapStateService,
+  ) {
+    if (typeof (L.Icon.Default.prototype as any)._getIconUrl === 'function') {
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+    }
+    L.Icon.Default.mergeOptions({
+      iconUrl: 'assets/images/marker-icon.png',
+      iconRetinaUrl: 'assets/images/marker-icon-2x.png',
+      shadowUrl: 'assets/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41],
+    });
+  }
 
   ngOnInit(): void {
     this.loadOfficials();
   }
 
+  ngAfterViewInit(): void {
+    this.initMap();
+  }
+
   ngOnDestroy(): void {
+    this.officialGroup.clearLayers();
+    if (this.mapInstance) {
+      this.mapInstance.remove();
+      this.mapInstance = null;
+    }
     this.cleanupTracking();
   }
 
@@ -50,7 +80,6 @@ export class OfficialTrackingComponent implements OnInit, OnDestroy {
     this.trackingService.getOfficials().subscribe({
       next: (officials) => {
         this.allOfficials = officials;
-        // Seed the internal cache so the mock stream has data if used
         this.trackingService.setLatestOfficials(officials);
         this.startTrackingActiveOfficials();
         this.applyFilter();
@@ -64,11 +93,27 @@ export class OfficialTrackingComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ── Map initialization ────────────────────────────────────
+
+  private initMap(): void {
+    if (this.mapInstance) return;
+
+    this.mapInstance = L.map(this.mapContainer.nativeElement, {
+      center: [4.5709, -74.2973],
+      zoom: 6,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(this.mapInstance);
+
+    this.mapState.setMap(this.mapInstance);
+  }
+
   // ── Tracking lifecycle ────────────────────────────────────
 
-  /** Filter active officials, send their IDs to /start, then subscribe to the socket */
   private startTrackingActiveOfficials(): void {
-    // Business rule: only track officials whose status is 'active'
     const activeOfficials = this.allOfficials.filter((o) => o.status === 'active');
     const ids = activeOfficials.map((o) => o.id_official);
 
@@ -84,19 +129,17 @@ export class OfficialTrackingComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('[Tracking] Start request failed:', err);
-        // Attempt to listen anyway — the socket may still emit
         this.connectToStream();
       },
     });
   }
 
-  /** Subscribe to the real-time location stream */
   private connectToStream(): void {
     this.trackingSub = this.trackingService.connectToTracking().subscribe({
       next: (updatedOfficials) => {
-        // Merge incoming WebSocket data into the local array by id_official
         this.allOfficials = this.mergeOfficials(this.allOfficials, updatedOfficials);
         this.applyFilter();
+        this.updateMapMarkers();
       },
       error: (err) => {
         console.error('[Tracking] Stream error:', err);
@@ -104,7 +147,49 @@ export class OfficialTrackingComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Merge an array of updated officials into the current array using id_official as key */
+  // ── Leaflet marker rendering ──────────────────────────────
+
+  private updateMapMarkers(): void {
+    if (!this.mapInstance) return;
+
+    if (!this.groupAdded) {
+      this.officialGroup.addTo(this.mapInstance);
+      this.groupAdded = true;
+    }
+
+    this.officialGroup.clearLayers();
+
+    for (const official of this.filteredOfficials) {
+      const { last_latitude, last_longitude } = official;
+      if (last_latitude == null || last_longitude == null) continue;
+
+      const officialIcon = L.divIcon({
+        className: '',
+        html: `<div style="
+          width: 14px; height: 14px;
+          background: #1976d2;
+          border: 2px solid #fff;
+          border-radius: 50%;
+          box-shadow: 0 1px 3px rgba(0,0,0,.3);
+        "></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+
+      const marker = L.marker([last_latitude, last_longitude], { icon: officialIcon });
+
+      marker.bindPopup(`
+        <strong>${official.name}</strong><br>
+        Cargo: ${official.role}<br>
+        GPS: ${official.gps_active ? 'Activo' : 'Inactivo'}
+      `);
+
+      marker.addTo(this.officialGroup);
+    }
+  }
+
+  // ── Data merge ────────────────────────────────────────────
+
   private mergeOfficials(current: Official[], updates: Official[]): Official[] {
     const map = new Map<number, Official>();
     current.forEach((o) => map.set(o.id_official, o));
@@ -114,12 +199,11 @@ export class OfficialTrackingComponent implements OnInit, OnDestroy {
 
   // ── Entity filter ─────────────────────────────────────────
 
-  /** Called when the user changes the entity dropdown */
   onEntityChange(): void {
     this.applyFilter();
+    this.updateMapMarkers();
   }
 
-  /** Filter: status === 'active' + optional entity scope */
   private applyFilter(): void {
     let filtered = this.allOfficials.filter((o) => o.status === 'active');
     if (this.selectedEntityId !== null) {
@@ -130,12 +214,13 @@ export class OfficialTrackingComponent implements OnInit, OnDestroy {
 
   // ── Cleanup ───────────────────────────────────────────────
 
-  /** Graceful teardown: unsubscribe → POST /stop → disconnect socket */
   private cleanupTracking(): void {
+    this.officialGroup.clearLayers();
+    this.groupAdded = false;
+
     this.trackingSub?.unsubscribe();
     this.trackingSub = null;
 
-    // Fire-and-forget: tell the backend to stop tracking
     this.trackingService.stopTracking().subscribe({
       next: (res) => console.log('[Tracking] Stopped:', res),
       error: (err) => console.error('[Tracking] Stop request failed:', err),
