@@ -63,4 +63,22 @@ export const navItems: NavItem[] = [
     iconName: 'solar:user-id-line-duotone',
     route: '/dashboard/official',
   },
+  {
+    navCap: 'Territorial',
+  },
+  {
+    displayName: 'Comunas',
+    iconName: 'solar:city-line-duotone',
+    route: '/territorial/comunas',
+  },
+  {
+    displayName: 'Barrios',
+    iconName: 'solar:map-point-wave-line-duotone',
+    route: '/territorial/barrios',
+  },
+  {
+    displayName: 'Mapa',
+    iconName: 'solar:map-line-duotone',
+    route: '/territorial/mapa',
+  },
 ];
