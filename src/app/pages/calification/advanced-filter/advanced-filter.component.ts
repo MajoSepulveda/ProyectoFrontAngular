@@ -5,16 +5,17 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 import * as L from 'leaflet';
-import { AdvancedFilterService } from '../../../services/advanced-filter.service';
+import { CategoryFilterService } from '../../../services/category-filter.service';
+import { LocationFilterService } from '../../../services/location-filter.service';
 import { AnnotationVoteService } from '../../../services/annotation-vote.service';
 import { SecurityService } from '../../../services/securityService';
 import { NeighborhoodService } from '../../../services/neighborhood.service';
 import { PointService } from '../../../services/point.service';
-import { TreeNode, FlatNode } from '../../../models/tree-node';
 import { Annotation } from '../../../models/Annotation';
 import { Neighborhood } from '../../../models/Neighborhood';
 import { MapStateService } from '../../../services/map-state.service';
 import { MapFactoryService } from '../../../services/map-factory.service';
+import { TreeFilterComponent } from '../../../components/tree-filter/tree-filter.component';
 import {
   AnnotationCreateDialogComponent,
   AnnotationCreateData,
@@ -22,16 +23,14 @@ import {
 
 @Component({
   selector: 'app-advanced-filter',
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, TreeFilterComponent],
   templateUrl: './advanced-filter.component.html',
   styleUrl: './advanced-filter.component.scss',
 })
 export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy {
-  // ── Pass-through getters (delegate to service) ──
-  get tree()                { return this.filterService.tree; }
-  get allAnnotations()      { return this.filterService.allAnnotations; }
-  get filteredAnnotations() { return this.filterService.filteredAnnotations; }
-  get loading()             { return this.filterService.loading; }
+  get allAnnotations()      { return this.categoryFilterService.allAnnotations; }
+  get filteredAnnotations() { return this.combinedFilteredAnnotations; }
+  get loading()             { return this.categoryFilterService.loading || this.locationFilterService.loading; }
 
   @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
 
@@ -46,7 +45,8 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   private neighborhoodPolygons: Map<number, { polygon: L.Polygon; neighborhood: Neighborhood }> = new Map();
 
   constructor(
-    private filterService: AdvancedFilterService,
+    readonly categoryFilterService: CategoryFilterService,
+    readonly locationFilterService: LocationFilterService,
     private mapState: MapStateService,
     private mapFactory: MapFactoryService,
     private router: Router,
@@ -74,20 +74,15 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     this.initMap();
   }
 
-  // ══════════════════════════════════════════════
-  //  DATA LOADING
-  // ══════════════════════════════════════════════
-
-  /**
-   * Delegates data fetching & tree building to the service.
-   * When done, refreshes the map markers with the filtered result.
-   */
   private loadData(): void {
-    this.filterService.loadData().subscribe({
+    forkJoin([
+      this.categoryFilterService.loadData(),
+      this.locationFilterService.loadData(),
+    ]).subscribe({
       next: () => {
+        this.locationFilterService.setAnnotations(this.categoryFilterService.allAnnotations);
         this.updateMapMarkers(this.filteredAnnotations);
         this.loadNeighborhoodPolygons();
-        /* Container is now visible (loading=false) — force Leaflet to recalculate size */
         setTimeout(() => this.mapInstance?.invalidateSize(), 100);
       },
     });
@@ -144,81 +139,40 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     return inside;
   }
 
-  // ══════════════════════════════════════════════
-  //  SELECTION STATE
-  // ══════════════════════════════════════════════
-
-  /** Toggles the expand/collapse of a tree node. */
-  toggleNode(node: TreeNode): void {
-    node.expanded = !node.expanded;
-  }
-
-  /** Toggles the selected state of a checkbox. Auto-expands when selected. */
-  onCheckboxChange(node: TreeNode): void {
-    node.selected = !node.selected;
-    if (node.selected && node.children.length > 0) {
-      node.expanded = true;
-    }
+  onFilterChange(): void {
     this.updateMapMarkers(this.filteredAnnotations);
   }
 
-  /** Resets every node's selected flag and collapses all nodes. */
-  clearFilters(): void {
-    for (const root of this.tree) {
-      this.clearNodeRecursive(root);
-    }
-    this.updateMapMarkers(this.filteredAnnotations);
+  onDepartmentChange(departmentId: number): void {
+    this.locationFilterService.selectDepartment(departmentId);
   }
 
-  private clearNodeRecursive(node: TreeNode): void {
-    node.selected = false;
-    node.expanded = false;
-    for (const child of node.children) {
-      this.clearNodeRecursive(child);
-    }
+  onCityChange(cityId: number): void {
+    this.locationFilterService.selectCity(cityId);
   }
 
   // ══════════════════════════════════════════════
-  //  TREE FLATTENING (for template rendering)
+  //  COMBINED FILTERING (AND)
   // ══════════════════════════════════════════════
 
-  /**
-   * Produces a flat, ordered array of visible tree entries.  Only expanded
-   * branches are included, so collapsed subtrees are omitted from the
-   * rendered list.  Each entry carries its nesting depth so the template
-   * can apply progressive indentation.
-   */
-  get visibleNodes(): FlatNode[] {
-    const result: FlatNode[] = [];
-    for (const root of this.tree) {
-      this.flattenNode(root, 0, result);
-    }
-    return result;
-  }
-
-  private flattenNode(node: TreeNode, depth: number, result: FlatNode[]): void {
-    result.push({ node, depth });
-    if (node.expanded && node.children.length > 0) {
-      for (const child of node.children) {
-        this.flattenNode(child, depth + 1, result);
-      }
-    }
+  private get combinedFilteredAnnotations(): Annotation[] {
+    const byCategory = this.categoryFilterService.filteredAnnotations;
+    const locationIds = this.locationFilterService.effectiveNeighborhoodIds;
+    if (locationIds === null || locationIds.size === 0) return byCategory;
+    return byCategory.filter(
+      (a) => a.id_neighborhood != null && locationIds.has(a.id_neighborhood),
+    );
   }
 
   // ══════════════════════════════════════════════
   //  MAP INTEGRATION — markerGroup bound to teammate's map
   // ══════════════════════════════════════════════
 
-  /**
-   * Initializes the Leaflet map on the #mapContainer div.
-   * Called once from ngAfterViewInit.
-   */
   private initMap(): void {
     if (this.mapInstance) return;
 
     this.mapInstance = this.mapFactory.createMap(this.mapContainer.nativeElement);
 
-    /* Navigate to vote page when user clicks "Rate this Annotation" inside a popup */
     this.mapInstance.on('popupopen', (e: L.PopupEvent) => {
       const popupEl = e.popup.getElement();
       if (!popupEl) return;
@@ -233,44 +187,32 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
       }
     });
 
-    /* Handle click on map for annotation placement mode (CU-12) */
     this.mapInstance.on('click', (e: L.LeafletMouseEvent) => {
       if (!this.placementMode) return;
       this.onPlacementClick(e);
     });
 
-    /* data might have loaded before the map was ready → render now */
     this.updateMapMarkers(this.filteredAnnotations);
   }
 
-  /**
-   * Called whenever the filtered set changes (initially on load, and
-   * after every selection toggle).
-   *
-   * Clears & rebuilds markers inside our private markerGroup so we never
-   * touch other layers on the map.
-   */
   updateMapMarkers(annotations: Annotation[]): void {
     if (!this.mapInstance) return;
 
-    /* attach our isolated markerGroup once */
     if (!this.markerGroupAttached) {
       this.markerGroup.addTo(this.mapInstance);
       this.markerGroupAttached = true;
     }
 
-    /* clear previous annotation markers */
     this.markerGroup.clearLayers();
 
-    /* rebuild markers from the current filtered set */
     for (const ann of annotations) {
       const lat = ann.latitude;
       const lng = ann.longitude;
       if (lat == null || lng == null || ann.id_annotation == null) continue;
 
-      const catInfo = this.filterService.resolveCategoryInfo(ann.id_annotation);
-      const voteInfo = this.filterService.resolveVoteInfo(ann.id_annotation);
-      const evidenceCount = this.filterService.resolveEvidenceCount(ann.id_annotation);
+      const catInfo = this.categoryFilterService.resolveCategoryInfo(ann.id_annotation);
+      const voteInfo = this.categoryFilterService.resolveVoteInfo(ann.id_annotation);
+      const evidenceCount = this.categoryFilterService.resolveEvidenceCount(ann.id_annotation);
 
       const marker = L.marker([lat, lng]);
 
@@ -313,7 +255,6 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
       return;
     }
 
-    /* Place a temporary pin */
     if (this.placementMarker) {
       this.mapInstance?.removeLayer(this.placementMarker);
     }
@@ -325,16 +266,13 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     });
     this.placementMarker = L.marker([event.latlng.lat, event.latlng.lng], { icon }).addTo(this.mapInstance!);
 
-    /* Close any existing popup */
     this.mapInstance!.closePopup();
 
-    /* Detect which neighborhood the click fell inside */
     const neighborhoodId = this.findNeighborhoodId(event.latlng.lat, event.latlng.lng);
     const neighborhoodName = neighborhoodId != null
       ? this.neighborhoodPolygons.get(neighborhoodId)?.neighborhood.name
       : undefined;
 
-    /* Open the creation dialog */
     const data: AnnotationCreateData = {
       lat: event.latlng.lat,
       lng: event.latlng.lng,
@@ -349,13 +287,11 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      /* Remove the temporary pin */
       if (this.placementMarker) {
         this.mapInstance?.removeLayer(this.placementMarker);
         this.placementMarker = null;
       }
       this.placementMode = false;
-      /* Reload data when an annotation was created */
       if (result) {
         this.loadData();
       }
@@ -377,11 +313,6 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     }
   }
 
-  // ──────────────────────────────────────────────
-  //  HELPERS
-  // ──────────────────────────────────────────────
-
-  /** Minimal XSS-safe HTML escaping for popup content. */
   private escapeHtml(text: string): string {
     const div = document.createElement('div');
     div.textContent = text;

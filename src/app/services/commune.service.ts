@@ -19,6 +19,10 @@ export class CommuneService {
     return this.apiService.get<Commune>(`${this.endpoint}/${id}`);
   }
 
+  getByCity(cityId: number): Observable<Commune[]> {
+    return this.apiService.get<Commune[]>(`${this.endpoint}`, { id_city: cityId });
+  }
+
   create(commune: Partial<Commune>): Observable<Commune> {
     return this.apiService.post<Commune>(this.endpoint, commune);
   }

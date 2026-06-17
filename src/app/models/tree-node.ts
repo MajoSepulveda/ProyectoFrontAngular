@@ -1,15 +1,13 @@
-import { Category } from './Category';
-
-export interface TreeNode {
-  category: Category;
-  children: TreeNode[];
+export interface TreeNode<T = any> {
+  data: T;
+  children: TreeNode<T>[];
   directCount: number;
   totalCount: number;
   expanded: boolean;
   selected: boolean;
 }
 
-export interface FlatNode {
-  node: TreeNode;
+export interface FlatNode<T = any> {
+  node: TreeNode<T>;
   depth: number;
 }

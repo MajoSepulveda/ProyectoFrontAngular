@@ -13,7 +13,7 @@ import { TreeNode } from '../models/tree-node';
 @Injectable({
   providedIn: 'root',
 })
-export class AdvancedFilterService {
+export class CategoryFilterService {
   private readonly annotationsEndpoint = '/annotations';
   private readonly categoriesEndpoint = '/categories';
   private readonly annotationCategoriesEndpoint = '/annotation-categories';
@@ -24,7 +24,7 @@ export class AdvancedFilterService {
   allRelations: AnnotationCategory[] = [];
 
   // ── PROCESSED DATA ────────────────────────────
-  tree: TreeNode[] = [];
+  tree: TreeNode<Category>[] = [];
 
   /** Lookup map:  categoryId → annotationIds[] */
   private categoryAnnotationMap = new Map<number, number[]>();
@@ -138,7 +138,7 @@ export class AdvancedFilterService {
    * Separates the flat category list into roots (id_parent_category === null)
    * and children, then builds a rooted TreeNode forest.
    */
-  private buildTree(): TreeNode[] {
+  private buildTree(): TreeNode<Category>[] {
     const roots = this.allCategories.filter(
       (c) => c.id_parent_category === null
     );
@@ -152,13 +152,13 @@ export class AdvancedFilterService {
    * Recursively constructs a TreeNode by matching each child whose
    * id_parent_category equals the current category's id_category.
    */
-  private buildTreeNode(category: Category, children: Category[]): TreeNode {
+  private buildTreeNode(category: Category, children: Category[]): TreeNode<Category> {
     const directChildren = children.filter(
       (c) => c.id_parent_category === category.id_category
     );
 
     return {
-      category,
+      data: category,
       children: directChildren.map((child) =>
         this.buildTreeNode(child, children)
       ),
@@ -183,12 +183,12 @@ export class AdvancedFilterService {
    * This way a root category displays the aggregate of itself and every
    * subcategory beneath it.
    */
-  private computeCounts(nodes: TreeNode[]): void {
+  private computeCounts(nodes: TreeNode<Category>[]): void {
     for (const node of nodes) {
       this.computeCounts(node.children);
 
       node.directCount = (
-        this.categoryAnnotationMap.get(node.category.id_category) || []
+        this.categoryAnnotationMap.get(node.data.id_category) || []
       ).length;
 
       node.totalCount =
@@ -244,7 +244,7 @@ export class AdvancedFilterService {
     return ids;
   }
 
-  private collectEffectiveIds(node: TreeNode, ids: Set<number>): void {
+  private collectEffectiveIds(node: TreeNode<Category>, ids: Set<number>): void {
     if (node.selected) {
       /* Parent selected → grab the whole subtree (priority override). */
       this.collectAllDescendantIds(node, ids);
@@ -257,8 +257,8 @@ export class AdvancedFilterService {
   }
 
   /** Recursively adds this node and every descendant's category ID. */
-  private collectAllDescendantIds(node: TreeNode, ids: Set<number>): void {
-    ids.add(node.category.id_category);
+  private collectAllDescendantIds(node: TreeNode<Category>, ids: Set<number>): void {
+    ids.add(node.data.id_category);
     for (const child of node.children) {
       this.collectAllDescendantIds(child, ids);
     }
