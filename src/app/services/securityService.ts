@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
 import { ApiService } from './api.service';
 import { tap, catchError, map } from 'rxjs/operators';
-import {
-  Usuario,
-  LoginResponse,
-  SesionData
-} from '../models/auth.models';
+import {Usuario, LoginResponse, SesionData} from '../models/auth.models';
 import { LocalStorageProvider } from './storage/LocalStorageProvider';
 
 @Injectable({
@@ -78,14 +74,6 @@ export class SecurityService {
 
   // ==================== API ====================
 
-  public verificarEmailRegistrado(email: string): Observable<boolean> {
-    return this.apiService.get<{ existe: boolean }>(
-      `/auth/verificar-email/${email}`
-    ).pipe(
-      map((response) => response.existe),
-      catchError(() => of(false))
-    );
-  }
 
   public actualizarPerfil(idUsuario: number, datosActualizados: Partial<Usuario>): Observable<LoginResponse> {
     return this.apiService.put<LoginResponse>(
