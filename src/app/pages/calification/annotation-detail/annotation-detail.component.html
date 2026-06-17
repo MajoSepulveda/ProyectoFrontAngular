@@ -1,0 +1,47 @@
+<section class="detail-container">
+  <button class="back-btn" (click)="goBack()">← Volver</button>
+
+  <div *ngIf="loading" class="loading-state">Cargando...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="annotation && !loading && !error" class="card">
+    <h2>{{ annotation.title }}</h2>
+
+    <div class="info-row">
+      <span class="label">Descripción:</span>
+      <span>{{ annotation.description }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="label">Categoría:</span>
+      <span>{{ categoryName }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Subcategoría:</span>
+      <span>{{ subcategoryName }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="label">Fecha de registro:</span>
+      <span>{{ annotation.created_at }}</span>
+    </div>
+
+    <div class="info-row">
+      <span class="label">Calificación promedio:</span>
+      <span>⭐ {{ averageRating }} ({{ votes.length }} voto{{ votes.length !== 1 ? 's' : '' }})</span>
+    </div>
+
+    <div class="evidences-section" *ngIf="evidences.length > 0">
+      <h3>Evidencias fotográficas</h3>
+      <div class="evidences-grid">
+        <div *ngFor="let ev of evidences" class="evidence-item">
+          <img [src]="ev.file_url" alt="Evidencia" (error)="handleImageError($event)" />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="evidences.length === 0" class="no-evidences">
+      No hay evidencias fotográficas para esta anotación.
+    </div>
+  </div>
+</section>

@@ -176,12 +176,21 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     this.mapInstance.on('popupopen', (e: L.PopupEvent) => {
       const popupEl = e.popup.getElement();
       if (!popupEl) return;
-      const btn = popupEl.querySelector('.btn-rate') as HTMLElement | null;
-      if (btn) {
-        btn.onclick = () => {
-          const id = btn.getAttribute('data-id');
+      const btnRate = popupEl.querySelector('.btn-rate') as HTMLElement | null;
+      if (btnRate) {
+        btnRate.onclick = () => {
+          const id = btnRate.getAttribute('data-id');
           if (id) {
             this.router.navigate(['/vote', id]);
+          }
+        };
+      }
+      const btnDetails = popupEl.querySelector('.btn-details') as HTMLElement | null;
+      if (btnDetails) {
+        btnDetails.onclick = () => {
+          const id = btnDetails.getAttribute('data-id');
+          if (id) {
+            this.router.navigate(['/annotation', id]);
           }
         };
       }
@@ -218,18 +227,17 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
 
       marker.bindPopup(`
         <div style="font-family:sans-serif;font-size:13px;line-height:1.5;max-width:260px">
-          <strong>${this.escapeHtml(ann.description)}</strong><br>
-          <span style="color:#555">
-            Categoría: ${this.escapeHtml(catInfo.category)}<br>
-            Subcategoría: ${this.escapeHtml(catInfo.subcategory)}
-          </span>
+          <strong>${this.escapeHtml(ann.description)}</strong>
           <hr style="margin:6px 0;border:none;border-top:1px solid #ddd">
-          <span>🗳 Votos: ${voteInfo.count} (⭐ ${voteInfo.average})</span><br>
-          <span>📎 Evidencias: ${evidenceCount}</span>
+          <span>⭐ ${voteInfo.average}</span>
           <hr style="margin:6px 0;border:none;border-top:1px solid #ddd">
           <button class="btn-rate" data-id="${ann.id_annotation}"
-                  style="width:100%;padding:6px 0;cursor:pointer;background:#1976d2;color:#fff;border:none;border-radius:4px;font-size:13px">
-            ⭐ Rate this Annotation
+                  style="width:100%;padding:6px 0;cursor:pointer;background:#1976d2;color:#fff;border:none;border-radius:4px;font-size:13px;margin-bottom:4px">
+            ⭐ Calificar
+          </button>
+          <button class="btn-details" data-id="${ann.id_annotation}"
+                  style="width:100%;padding:6px 0;cursor:pointer;background:#f5f5f5;color:#333;border:1px solid #ccc;border-radius:4px;font-size:13px">
+            📋 Detalles
           </button>
         </div>
       `);

@@ -3,6 +3,7 @@ import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { AdvancedFilterComponent } from './pages/calification/advanced-filter/advanced-filter.component';
+import { AnnotationDetailComponent } from './pages/calification/annotation-detail/annotation-detail.component';
 import { AnnotationVoteComponent } from './pages/calification/annotation-vote/annotation-vote.component';
 import { OfficialTrackingComponent } from './pages/official-tracking/official-tracking.component';
 import { authGuard } from './services/auth.guard';
@@ -57,6 +58,16 @@ export const routes: Routes = [
           title: 'Calificar Anotación',
           urls: [
             { title: 'Calificar Anotación' },
+          ],
+        },
+      },
+      {
+        path: 'annotation/:id',
+        component: AnnotationDetailComponent,
+        data: {
+          title: 'Detalle de Anotación',
+          urls: [
+            { title: 'Detalle de Anotación' },
           ],
         },
       },
