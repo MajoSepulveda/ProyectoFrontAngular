@@ -35,8 +35,13 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
   private polygonLayer: L.Polygon | null = null;
   points: DrawnPoint[] = [];
   private existingPointIds: Set<number> = new Set();
+  hasExistingPoints = false;
+  hasUnsavedChanges = false;
   addingEnabled = false;
   polygonLocked = false;
+  isEditing = false;
+  moveEnabled = false;
+  deleteMode = false;
 
   neighborhoods: Neighborhood[] = [];
   communes: Commune[] = [];
@@ -82,7 +87,6 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
     }).addTo(this.map);
 
     this.mapState.setMap(this.map);
-
     this.map.on('click', (e: L.LeafletMouseEvent) => this.onMapClick(e));
   }
 
@@ -92,9 +96,11 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
 
   onCommuneChange(): void {
     this.clearPolygon();
+    this.existingPointIds = new Set();
     this.neighborhoods = [];
     this.selectedNeighborhood = null;
     this.addingEnabled = false;
+    this.isEditing = false;
     if (!this.selectedCommuneId) return;
 
     if (this.selectedCommuneId === -1) {
@@ -116,11 +122,14 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
 
   selectNeighborhood(neighborhood: Neighborhood): void {
     this.clearPolygon();
+    this.existingPointIds = new Set();
     this.selectedNeighborhood = neighborhood;
     this.addingEnabled = false;
     this.polygonLocked = true;
+    this.isEditing = false;
+    this.hasExistingPoints = false;
+    this.hasUnsavedChanges = false;
     this.loadPoints(neighborhood.id_neighborhood!);
-
     this.flyToNeighborhoodCity(neighborhood);
   }
 
@@ -141,6 +150,7 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
         this.polygonLocked = false;
         return;
       }
+      this.hasExistingPoints = true;
       this.existingPointIds = new Set(data.map((p) => p.id_point!));
       data.sort((a, b) => (a.order || 0) - (b.order || 0));
       for (const pt of data) {
@@ -160,6 +170,39 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
     }
   }
 
+  startEditing(): void {
+    this.isEditing = true;
+    this.polygonLocked = false;
+    this.addingEnabled = false;
+    this.moveEnabled = false;
+    this.deleteMode = false;
+  }
+
+  toggleAdding(): void {
+    this.addingEnabled = !this.addingEnabled;
+    if (this.deleteMode) this.deleteMode = false;
+  }
+
+  toggleMove(): void {
+    this.moveEnabled = !this.moveEnabled;
+    for (const p of this.points) {
+      if (this.moveEnabled) {
+        p.marker.dragging?.enable();
+        const el = p.marker.getElement();
+        if (el) el.style.cursor = 'grab';
+      } else {
+        p.marker.dragging?.disable();
+        const el = p.marker.getElement();
+        if (el) el.style.cursor = 'default';
+      }
+    }
+  }
+
+  toggleDelete(): void {
+    this.deleteMode = !this.deleteMode;
+    if (this.addingEnabled) this.addingEnabled = false;
+  }
+
   private addPointToMap(lat: number, lng: number, id_point?: number, canDrag = true): void {
     const index = this.points.length;
     const icon = L.divIcon({
@@ -174,7 +217,7 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
       draggable: true,
     }).addTo(this.map);
 
-    if (!canDrag) {
+    if (!canDrag && !this.moveEnabled) {
       marker.dragging?.disable();
       const el = marker.getElement();
       if (el) el.style.cursor = 'default';
@@ -189,23 +232,43 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
         this.points[idx].lat = pos.lat;
         this.points[idx].lng = pos.lng;
         this.updatePolygon();
+        this.hasUnsavedChanges = true;
       }
     });
 
-    marker.on('contextmenu', () => {
-      if (!this.addingEnabled && this.polygonLocked) return;
+    marker.on('click', () => {
+      if (!this.deleteMode) return;
       this.map.removeLayer(marker);
       this.points = this.points.filter((p) => p.marker !== marker);
       this.updatePolygon();
+      this.renumberPoints();
+      this.hasUnsavedChanges = true;
+    });
+
+    marker.on('contextmenu', () => {
+      if (!this.addingEnabled && this.polygonLocked && !this.isEditing) return;
+      this.map.removeLayer(marker);
+      this.points = this.points.filter((p) => p.marker !== marker);
+      this.updatePolygon();
+      this.renumberPoints();
+      this.hasUnsavedChanges = true;
     });
 
     this.points.push({ lat, lng, id_point, marker });
   }
 
   onMapClick(event: L.LeafletMouseEvent): void {
-    if (!this.selectedNeighborhood || !this.addingEnabled || this.polygonLocked) return;
+    if (!this.selectedNeighborhood || this.deleteMode) return;
+    if (!this.addingEnabled || this.polygonLocked) return;
     this.addPointToMap(event.latlng.lat, event.latlng.lng);
     this.updatePolygon();
+    this.hasUnsavedChanges = true;
+  }
+
+  private renumberPoints(): void {
+    for (let i = 0; i < this.points.length; i++) {
+      this.points[i].marker.setTooltipContent(`${i + 1}`);
+    }
   }
 
   private updatePolygon(): void {
@@ -224,11 +287,20 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   cancelEditing(): void {
+    if (this.isEditing) {
+      this.isEditing = false;
+    }
     this.clearPolygon();
     if (this.selectedNeighborhood) {
       this.loadPoints(this.selectedNeighborhood.id_neighborhood!);
     }
     this.addingEnabled = false;
+    this.moveEnabled = false;
+    this.deleteMode = false;
+    this.hasUnsavedChanges = false;
+    if (this.hasExistingPoints) {
+      this.polygonLocked = true;
+    }
   }
 
   private createPoints(neighborhoodId: number): void {
@@ -247,7 +319,17 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
       next: () => {
         this.existingPointIds.clear();
         this.addingEnabled = false;
+        this.moveEnabled = false;
+        this.deleteMode = false;
         this.polygonLocked = true;
+        this.isEditing = false;
+        this.hasExistingPoints = true;
+        this.hasUnsavedChanges = false;
+        for (const p of this.points) {
+          p.marker.dragging?.disable();
+          const el = p.marker.getElement();
+          if (el) el.style.cursor = 'default';
+        }
         this.snackBar.open('Polígono guardado exitosamente', 'Cerrar', { duration: 5000 });
       },
       error: () => this.snackBar.open('Error al crear puntos', 'Cerrar', { duration: 3000 }),
@@ -255,13 +337,28 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   savePolygon(): void {
-    if (!this.selectedNeighborhood || this.points.length < 3) {
-      this.snackBar.open('Debe agregar al menos 3 puntos para formar un polígono', 'Cerrar', { duration: 3000 });
-      return;
-    }
+    if (!this.selectedNeighborhood) return;
 
     const neighborhoodId = this.selectedNeighborhood.id_neighborhood!;
     const existingIds = Array.from(this.existingPointIds);
+
+    if (this.points.length < 3) {
+      if (existingIds.length === 0) {
+        this.snackBar.open('Debe agregar al menos 3 puntos para formar un polígono', 'Cerrar', { duration: 3000 });
+        return;
+      }
+      forkJoin(existingIds.map((id) => this.pointService.delete(id))).subscribe({
+        next: () => {
+          this.existingPointIds.clear();
+          this.hasExistingPoints = false;
+          this.hasUnsavedChanges = false;
+          this.polygonLocked = false;
+          this.snackBar.open('Polígono eliminado exitosamente', 'Cerrar', { duration: 5000 });
+        },
+        error: () => this.snackBar.open('Error al eliminar puntos', 'Cerrar', { duration: 3000 }),
+      });
+      return;
+    }
 
     if (existingIds.length === 0) {
       this.createPoints(neighborhoodId);
@@ -282,12 +379,15 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
       this.polygonLayer = null;
     }
     this.points = [];
-    this.existingPointIds = new Set();
   }
 
   clearAll(): void {
     this.clearPolygon();
     this.addingEnabled = false;
-    this.polygonLocked = true;
+    this.polygonLocked = false;
+    this.isEditing = false;
+    this.moveEnabled = false;
+    this.deleteMode = false;
+    this.hasUnsavedChanges = true;
   }
 }

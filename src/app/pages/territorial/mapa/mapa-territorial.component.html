@@ -29,7 +29,8 @@
     <div #mapContainer class="w-full h-full"></div>
   </main>
 
-  <aside *ngIf="selectedNeighborhood" class="w-80 bg-white shadow-md p-4 overflow-y-auto flex flex-col gap-4">
+  <!-- View mode (CU-09) -->
+  <aside *ngIf="selectedNeighborhood && !isEditing" class="w-80 bg-white shadow-md p-4 overflow-y-auto flex flex-col gap-4">
     <h2 class="text-lg font-semibold">{{ selectedNeighborhood.name }}</h2>
 
     <button
@@ -45,8 +46,9 @@
 
     <button
       mat-stroked-button
+      (click)="startEditing()"
+      [disabled]="!hasExistingPoints"
       class="w-full"
-      disabled
     >
       Editar Polígono
     </button>
@@ -94,7 +96,7 @@
         mat-flat-button
         color="primary"
         (click)="savePolygon()"
-        [disabled]="points.length < 3"
+        [disabled]="!hasUnsavedChanges"
         class="flex-1"
       >
         Guardar Polígono
@@ -103,6 +105,81 @@
 
     <div *ngIf="polygonLocked && points.length >= 3" class="p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
       Polígono guardado exitosamente
+    </div>
+  </aside>
+
+  <!-- Edit mode (CU-10) -->
+  <aside *ngIf="selectedNeighborhood && isEditing" class="w-80 bg-white shadow-md p-4 overflow-y-auto flex flex-col gap-4">
+    <h2 class="text-lg font-semibold">Editar: {{ selectedNeighborhood.name }}</h2>
+
+    <button
+      mat-flat-button
+      [color]="addingEnabled ? 'primary' : 'basic'"
+      (click)="toggleAdding()"
+      class="w-full"
+    >
+      {{ addingEnabled ? 'Agregando...' : 'Agregar Puntos' }}
+    </button>
+
+    <button
+      mat-stroked-button
+      [color]="moveEnabled ? 'primary' : 'basic'"
+      (click)="toggleMove()"
+      class="w-full"
+    >
+      {{ moveEnabled ? 'Moviendo...' : 'Mover Puntos' }}
+    </button>
+
+    <button
+      mat-stroked-button
+      [color]="deleteMode ? 'warn' : 'basic'"
+      (click)="toggleDelete()"
+      class="w-full"
+    >
+      {{ deleteMode ? 'Eliminando...' : 'Eliminar Punto' }}
+    </button>
+
+    <p *ngIf="deleteMode" class="text-xs text-red-500 -mt-2">Seleccione los puntos a eliminar</p>
+
+    <div *ngIf="points.length > 0" class="flex flex-col gap-2">
+      <h3 class="text-sm font-medium text-gray-600">Coordenadas</h3>
+      <div class="max-h-48 overflow-y-auto border rounded-md">
+        <table class="w-full text-xs">
+          <thead class="bg-gray-50 sticky top-0">
+            <tr>
+              <th class="text-left px-2 py-1 font-medium text-gray-600">#</th>
+              <th class="text-left px-2 py-1 font-medium text-gray-600">Latitud</th>
+              <th class="text-left px-2 py-1 font-medium text-gray-600">Longitud</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of points; let i = index" class="border-t border-gray-100">
+              <td class="px-2 py-1 font-mono">{{ i + 1 }}</td>
+              <td class="px-2 py-1 font-mono">{{ p.lat | number:'1.6-6' }}</td>
+              <td class="px-2 py-1 font-mono">{{ p.lng | number:'1.6-6' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="flex gap-2 mt-auto pt-4 border-t">
+      <button
+        mat-stroked-button
+        (click)="cancelEditing()"
+        class="flex-1"
+      >
+        Cancelar
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="savePolygon()"
+        [disabled]="!hasUnsavedChanges"
+        class="flex-1"
+      >
+        Guardar Cambios
+      </button>
     </div>
   </aside>
 </div>

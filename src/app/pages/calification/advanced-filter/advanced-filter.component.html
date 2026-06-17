@@ -77,6 +77,17 @@
       </div>
 
       <div #mapContainer class="map-container"></div>
+
+      <!-- FAB button for annotation creation (CU-12) -->
+      <button
+        class="fab-create"
+        mat-fab
+        [color]="placementMode ? 'accent' : 'primary'"
+        (click)="togglePlacementMode()"
+        [matTooltip]="placementMode ? 'Cancelar colocación' : 'Crear anotación'"
+      >
+        <mat-icon>{{ placementMode ? 'close' : 'add' }}</mat-icon>
+      </button>
     </div>
   </main>
 </div>

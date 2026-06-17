@@ -124,6 +124,7 @@
   overflow: hidden;
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
   background: #fff;
+  position: relative;
 }
 
 .map-info-bar {
@@ -147,6 +148,14 @@
 .map-container {
   flex: 1;
   min-height: 500px;
+}
+
+/* ─── FAB (CU-12 annotation creation) ────────── */
+.fab-create {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
 }
 
 /* ─── RESPONSIVE ──────────────────────────────── */

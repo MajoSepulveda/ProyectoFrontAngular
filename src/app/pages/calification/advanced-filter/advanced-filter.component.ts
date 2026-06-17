@@ -2,11 +2,22 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } fr
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../material.module';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { forkJoin } from 'rxjs';
 import * as L from 'leaflet';
 import { AdvancedFilterService } from '../../../services/advanced-filter.service';
+import { AnnotationVoteService } from '../../../services/annotation-vote.service';
+import { SecurityService } from '../../../services/securityService';
+import { NeighborhoodService } from '../../../services/neighborhood.service';
+import { PointService } from '../../../services/point.service';
 import { TreeNode, FlatNode } from '../../../models/tree-node';
 import { Annotation } from '../../../models/Annotation';
+import { Neighborhood } from '../../../models/Neighborhood';
 import { MapStateService } from '../../../services/map-state.service';
+import {
+  AnnotationCreateDialogComponent,
+  AnnotationCreateData,
+} from '../annotation-create-dialog/annotation-create-dialog.component';
 
 @Component({
   selector: 'app-advanced-filter',
@@ -28,10 +39,20 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   private readonly markerGroup = L.layerGroup();
   private markerGroupAttached = false;
 
+  placementMode = false;
+  private placementMarker: L.Marker | null = null;
+  private activeCitizenId: number | null = null;
+  private neighborhoodPolygons: Map<number, { polygon: L.Polygon; neighborhood: Neighborhood }> = new Map();
+
   constructor(
     private filterService: AdvancedFilterService,
     private mapState: MapStateService,
     private router: Router,
+    private dialog: MatDialog,
+    private annotationVote: AnnotationVoteService,
+    private security: SecurityService,
+    private neighborhoodService: NeighborhoodService,
+    private pointService: PointService,
   ) {
     if (typeof (L.Icon.Default.prototype as any)._getIconUrl === 'function') {
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -50,6 +71,15 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnInit(): void {
     this.loadData();
+    this.loadActiveCitizen();
+  }
+
+  private loadActiveCitizen(): void {
+    const usuario = this.security.obtenerUsuarioActual();
+    if (!usuario?.email) return;
+    this.annotationVote.getCitizenByEmail(usuario.email).subscribe((citizen) => {
+      if (citizen) this.activeCitizenId = citizen.id_citizen;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -68,10 +98,62 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     this.filterService.loadData().subscribe({
       next: () => {
         this.updateMapMarkers(this.filteredAnnotations);
+        this.loadNeighborhoodPolygons();
         /* Container is now visible (loading=false) — force Leaflet to recalculate size */
         setTimeout(() => this.mapInstance?.invalidateSize(), 100);
       },
     });
+  }
+
+  private loadNeighborhoodPolygons(): void {
+    if (!this.mapInstance) return;
+    this.neighborhoodPolygons.clear();
+
+    this.neighborhoodService.getAll().subscribe((neighborhoods) => {
+      for (const n of neighborhoods) {
+        if (!n.id_neighborhood) continue;
+        this.pointService.getByNeighborhood(n.id_neighborhood).subscribe((points) => {
+          if (points.length < 3) return;
+          points.sort((a, b) => (a.order || 0) - (b.order || 0));
+          const latlngs: [number, number][] = points.map((p) => [p.latitude, p.longitude]);
+
+          const polygon = L.polygon(latlngs, {
+            color: '#3b82f6',
+            fillColor: '#60a5fa',
+            fillOpacity: 0.1,
+            weight: 2,
+            interactive: false,
+          }).addTo(this.mapInstance!);
+
+          polygon.bindTooltip(n.name, { permanent: false, direction: 'center', className: 'neighborhood-label' });
+
+          this.neighborhoodPolygons.set(n.id_neighborhood, { polygon, neighborhood: n });
+        });
+      }
+    });
+  }
+
+  private findNeighborhoodId(lat: number, lng: number): number | null {
+    for (const [id, entry] of this.neighborhoodPolygons) {
+      const latlngs = entry.polygon.getLatLngs()[0] as L.LatLng[];
+      if (this.pointInPolygon(lat, lng, latlngs)) {
+        return id;
+      }
+    }
+    return null;
+  }
+
+  private pointInPolygon(lat: number, lng: number, polygon: L.LatLng[]): boolean {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const pi = polygon[i];
+      const pj = polygon[j];
+      if ((pi.lat > lat) !== (pj.lat > lat) &&
+          lng < (pj.lng - pi.lng) * (lat - pi.lat) / (pj.lat - pi.lat) + pi.lng) {
+        inside = !inside;
+      }
+    }
+    return inside;
   }
 
   // ══════════════════════════════════════════════
@@ -173,6 +255,12 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
       }
     });
 
+    /* Handle click on map for annotation placement mode (CU-12) */
+    this.mapInstance.on('click', (e: L.LeafletMouseEvent) => {
+      if (!this.placementMode) return;
+      this.onPlacementClick(e);
+    });
+
     /* data might have loaded before the map was ready → render now */
     this.updateMapMarkers(this.filteredAnnotations);
   }
@@ -230,7 +318,80 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
     }
   }
 
+  // ── Annotation placement (CU-12) ──────────────────────────
+
+  togglePlacementMode(): void {
+    this.placementMode = !this.placementMode;
+    if (!this.placementMode && this.placementMarker) {
+      this.mapInstance?.removeLayer(this.placementMarker);
+      this.placementMarker = null;
+    }
+  }
+
+  private onPlacementClick(event: L.LeafletMouseEvent): void {
+    if (!this.activeCitizenId) {
+      alert('No se pudo identificar al ciudadano. Inicia sesión nuevamente.');
+      this.placementMode = false;
+      return;
+    }
+
+    /* Place a temporary pin */
+    if (this.placementMarker) {
+      this.mapInstance?.removeLayer(this.placementMarker);
+    }
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:16px;height:16px;background:#ef4444;border:2px solid #dc2626;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,0.4)"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+    this.placementMarker = L.marker([event.latlng.lat, event.latlng.lng], { icon }).addTo(this.mapInstance!);
+
+    /* Close any existing popup */
+    this.mapInstance!.closePopup();
+
+    /* Detect which neighborhood the click fell inside */
+    const neighborhoodId = this.findNeighborhoodId(event.latlng.lat, event.latlng.lng);
+    const neighborhoodName = neighborhoodId != null
+      ? this.neighborhoodPolygons.get(neighborhoodId)?.neighborhood.name
+      : undefined;
+
+    /* Open the creation dialog */
+    const data: AnnotationCreateData = {
+      lat: event.latlng.lat,
+      lng: event.latlng.lng,
+      id_citizen: this.activeCitizenId,
+      id_neighborhood: neighborhoodId,
+      neighborhoodName,
+    };
+
+    const dialogRef = this.dialog.open(AnnotationCreateDialogComponent, {
+      data,
+      width: '480px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      /* Remove the temporary pin */
+      if (this.placementMarker) {
+        this.mapInstance?.removeLayer(this.placementMarker);
+        this.placementMarker = null;
+      }
+      this.placementMode = false;
+      /* Reload data when an annotation was created */
+      if (result) {
+        this.loadData();
+      }
+    });
+  }
+
   ngOnDestroy(): void {
+    if (this.placementMarker) {
+      this.mapInstance?.removeLayer(this.placementMarker);
+    }
+    for (const [, entry] of this.neighborhoodPolygons) {
+      this.mapInstance?.removeLayer(entry.polygon);
+    }
+    this.neighborhoodPolygons.clear();
     this.markerGroup.remove();
     if (this.mapInstance) {
       this.mapInstance.remove();
