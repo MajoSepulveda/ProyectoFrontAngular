@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
-import { Official } from '../../models/Official';
-import { ApiService } from '../../services/api.service';
-import { environment } from '../../../environments/environment';
+import { Official } from '../models/Official';
+import { ApiService } from '../services/api.service';
+import { environment } from '../../environments/environment';
 
 /** Shape of the POST /tracking/start response */
 export interface TrackingStartResponse {
@@ -97,6 +97,4 @@ export class OfficialTrackingService {
   setLatestOfficials(officials: Official[]): void {
     this.latestOfficials = officials;
   }
-
-
 }

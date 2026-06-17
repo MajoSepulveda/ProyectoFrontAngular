@@ -2,8 +2,9 @@ import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { ReportsComponent } from './pages/reports/reports.component';
-import { OfficialTrackingComponent } from './pages/social-analytics/official-tracking.component';
-import { SocialAnalyticsRoutes } from './pages/social-analytics/social-analytics.routes';
+import { AdvancedFilterComponent } from './pages/calification/advanced-filter/advanced-filter.component';
+import { AnnotationVoteComponent } from './pages/calification/annotation-vote/annotation-vote.component';
+import { OfficialTrackingComponent } from './pages/official-tracking/official-tracking.component';
 import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
@@ -35,12 +36,39 @@ export const routes: Routes = [
           import('./pages/extra/extra.routes').then((m) => m.ExtraRoutes),
       },
       {
-        path: 'social-analytics/tracking',
-        component: OfficialTrackingComponent,
+        path: 'territorial',
+        loadChildren: () =>
+          import('./pages/territorial/territorial.routes').then((m) => m.TerritorialRoutes),
       },
       {
-        path: 'social-analytics',
-        children: SocialAnalyticsRoutes,
+        path: 'tracking',
+        component: OfficialTrackingComponent,
+        data: {
+          title: 'Tracking',
+          urls: [
+            { title: 'Tracking' },
+          ],
+        },
+      },
+      {
+        path: 'vote/:id',
+        component: AnnotationVoteComponent,
+        data: {
+          title: 'Calificar Anotación',
+          urls: [
+            { title: 'Calificar Anotación' },
+          ],
+        },
+      },
+      {
+        path: 'annotations',
+        component: AdvancedFilterComponent,
+        data: {
+          title: 'Advanced Filter',
+          urls: [
+            { title: 'Annotations' },
+          ],
+        },
       },
     ],
   },

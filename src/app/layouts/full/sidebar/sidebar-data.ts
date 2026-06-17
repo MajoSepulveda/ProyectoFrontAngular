@@ -14,14 +14,18 @@ export const navItems: NavItem[] = [
     iconName: 'solar:chart-square-line-duotone',
     route: '/dashboard/reports',
   },
-
+  {
+    displayName: 'Seguimiento',
+    iconName: 'solar:chart-square-line-duotone',
+    route: '/tracking',
+  },
   {
     navCap: 'Gestión',
   },
   {
     displayName: 'Annotations',
     iconName: 'solar:notes-line-duotone',
-    route: '/dashboard/annotations',
+    route: '/annotations',
   },
   {
     displayName: 'Category',

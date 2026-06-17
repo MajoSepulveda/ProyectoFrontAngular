@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { StarterComponent } from './starter/starter.component';
 import { ReportsComponent } from './reports/reports.component';
-import { AdvancedFilterComponent } from './social-analytics/advanced-filter/advanced-filter.component';
-
 import { CategoryComponent } from './category/category.component';
 import { CitizenComponent } from './citizen/citizen.component';
 import { CityComponent } from './city/city.component';
@@ -35,18 +33,6 @@ export const PagesRoutes: Routes = [
         ],
       },
     },
-    {
-      path: 'annotations',
-      component: AdvancedFilterComponent,
-      data: {
-        title: 'Advanced Filter',
-        urls: [
-          { title: 'Dashboard', url: '/dashboard' },
-          { title: 'Annotations' },
-        ],
-      },
-    },
-
   { path: 'category',     component: CategoryComponent },
   { path: 'citizen',      component: CitizenComponent },
   { path: 'city',         component: CityComponent },

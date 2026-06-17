@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { Subscription } from 'rxjs';
 import { Official } from '../../models/Official';
-import { OfficialTrackingService } from './official-tracking.service';
+import { OfficialTrackingService } from '../../services/official-tracking.service';
 import { MapStateService } from '../../services/map-state.service';
 import { EntityService } from '../../services/entity.service';
 import { Entity } from '../../models/Entity';

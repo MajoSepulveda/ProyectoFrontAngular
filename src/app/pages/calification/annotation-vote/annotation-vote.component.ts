@@ -64,7 +64,7 @@ export class AnnotationVoteComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.router.navigate(['/dashboard/annotations']);
+      this.router.navigate(['/annotations']);
       return;
     }
     this.loadAnnotation(Number(id));

@@ -167,7 +167,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
         btn.onclick = () => {
           const id = btn.getAttribute('data-id');
           if (id) {
-            this.router.navigate(['/social-analytics/vote', id]);
+            this.router.navigate(['/vote', id]);
           }
         };
       }
