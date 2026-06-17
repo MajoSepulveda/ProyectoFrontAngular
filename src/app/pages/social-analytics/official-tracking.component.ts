@@ -128,7 +128,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   // ── Tracking lifecycle ────────────────────────────────────
 
   private startTrackingActiveOfficials(): void {
-    const activeOfficials = this.allOfficials.filter((o) => o.status === 'activo');
+    const activeOfficials = this.allOfficials.filter((o) => o.status === 'activo' || o.status === 'active');
     const ids = activeOfficials.map((o) => o.id_official);
 
     if (ids.length === 0) {
@@ -228,7 +228,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private applyFilter(): void {
-    let filtered = this.allOfficials.filter((o) => o.status === 'activo');
+    let filtered = this.allOfficials.filter((o) => o.status === 'activo' || o.status === 'active');
     if (this.selectedEntityId !== null) {
       filtered = filtered.filter((o) => o.id_entity === this.selectedEntityId);
     }

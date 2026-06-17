@@ -26,7 +26,9 @@ export class OfficialComponent implements OnInit {
     { field: 'phone',       header: 'Teléfono' },
     { field: 'role',        header: 'Rol' },
     { field: 'status',      header: 'Estado' },
-    { field: 'gps_active',  header: 'GPS' },
+    { field: 'gps_active',      header: 'GPS' },
+    { field: 'last_latitude',   header: 'Latitud' },
+    { field: 'last_longitude',  header: 'Longitud' },
   ];
 
   editFields: EditField[] = [
@@ -39,7 +41,9 @@ export class OfficialComponent implements OnInit {
       { value: 'desactivado', label: 'Desactivado' },
     ]},
     { key: 'id_entity',  label: 'ID Entidad', type: 'number' },
-    { key: 'gps_active', label: 'GPS Activo', type: 'boolean' },
+    { key: 'gps_active',     label: 'GPS Activo',  type: 'boolean' },
+    { key: 'last_latitude',  label: 'Latitud',     type: 'number' },
+    { key: 'last_longitude', label: 'Longitud',    type: 'number' },
   ];
 
   ngOnInit(): void {
