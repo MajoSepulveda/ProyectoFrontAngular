@@ -32,6 +32,10 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   private groupAdded = false;
 
   private trackingSub: Subscription | null = null;
+  private lastUpdateTimestamps = new Map<number, number>();
+  private staleCheckInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly STALE_THRESHOLD = 10000;
+  private readonly CHECK_INTERVAL = 10000;
 
   constructor(
     private trackingService: OfficialTrackingService,
@@ -129,6 +133,10 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   private connectToStream(): void {
     this.trackingSub = this.trackingService.connectToTracking().subscribe({
       next: (updatedOfficials) => {
+        const now = Date.now();
+        updatedOfficials.forEach((o) => {
+          this.lastUpdateTimestamps.set(o.id_official, now);
+        });
         this.allOfficials = this.mergeOfficials(this.allOfficials, updatedOfficials);
         this.applyFilter();
         this.updateMapMarkers();
@@ -137,6 +145,29 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
         console.error('[Tracking] Stream error:', err);
       },
     });
+
+    this.startStaleCheck();
+  }
+
+  private startStaleCheck(): void {
+    this.staleCheckInterval = setInterval(() => {
+      const now = Date.now();
+      let changed = false;
+
+      for (const official of this.allOfficials) {
+        if (!official.gps_active) continue;
+        const lastUpdate = this.lastUpdateTimestamps.get(official.id_official);
+        if (lastUpdate && now - lastUpdate > this.STALE_THRESHOLD) {
+          official.gps_active = false;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        this.applyFilter();
+        this.updateMapMarkers();
+      }
+    }, this.CHECK_INTERVAL);
   }
 
   // ── Leaflet marker rendering ──────────────────────────────
@@ -159,7 +190,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
         className: '',
         html: `<div style="
           width: 14px; height: 14px;
-          background: #1976d2;
+          background: ${official.gps_active ? '#1976d2' : '#ef5350'};
           border: 2px solid #fff;
           border-radius: 50%;
           box-shadow: 0 1px 3px rgba(0,0,0,.3);
@@ -218,6 +249,11 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   private cleanupTracking(): void {
     this.officialGroup.clearLayers();
     this.groupAdded = false;
+
+    if (this.staleCheckInterval) {
+      clearInterval(this.staleCheckInterval);
+      this.staleCheckInterval = null;
+    }
 
     this.trackingSub?.unsubscribe();
     this.trackingSub = null;
