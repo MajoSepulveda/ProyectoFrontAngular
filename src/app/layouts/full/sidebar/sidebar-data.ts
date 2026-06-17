@@ -53,7 +53,7 @@ export const navItems: NavItem[] = [
     route: '/territorial/barrios',
   },
   {
-    displayName: 'Mapa Territorial',
+    displayName: 'Mapa',
     iconName: 'solar:map-line-duotone',
     route: '/territorial/mapa',
   },
