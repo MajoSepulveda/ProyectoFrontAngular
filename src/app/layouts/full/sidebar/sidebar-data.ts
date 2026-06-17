@@ -81,7 +81,7 @@ export const navItems: NavItem[] = [
     route: '/territorial/barrios',
   },
   {
-    displayName: 'Mapa',
+    displayName: 'Demarcación Mapa',
     iconName: 'solar:map-line-duotone',
     route: '/territorial/mapa',
   },

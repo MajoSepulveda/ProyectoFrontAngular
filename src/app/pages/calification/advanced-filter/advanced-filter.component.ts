@@ -14,6 +14,7 @@ import { TreeNode, FlatNode } from '../../../models/tree-node';
 import { Annotation } from '../../../models/Annotation';
 import { Neighborhood } from '../../../models/Neighborhood';
 import { MapStateService } from '../../../services/map-state.service';
+import { MapFactoryService } from '../../../services/map-factory.service';
 import {
   AnnotationCreateDialogComponent,
   AnnotationCreateData,
@@ -47,27 +48,14 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   constructor(
     private filterService: AdvancedFilterService,
     private mapState: MapStateService,
+    private mapFactory: MapFactoryService,
     private router: Router,
     private dialog: MatDialog,
     private annotationVote: AnnotationVoteService,
     private security: SecurityService,
     private neighborhoodService: NeighborhoodService,
     private pointService: PointService,
-  ) {
-    if (typeof (L.Icon.Default.prototype as any)._getIconUrl === 'function') {
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-    }
-    L.Icon.Default.mergeOptions({
-      iconUrl: 'assets/images/marker-icon.png',
-      iconRetinaUrl: 'assets/images/marker-icon-2x.png',
-      shadowUrl: 'assets/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41],
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -228,17 +216,7 @@ export class AdvancedFilterComponent implements OnInit, AfterViewInit, OnDestroy
   private initMap(): void {
     if (this.mapInstance) return;
 
-    this.mapInstance = L.map(this.mapContainer.nativeElement, {
-      center: [4.5709, -74.2973],
-      zoom: 6,
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(this.mapInstance);
-
-    this.mapState.setMap(this.mapInstance);
+    this.mapInstance = this.mapFactory.createMap(this.mapContainer.nativeElement);
 
     /* Navigate to vote page when user clicks "Rate this Annotation" inside a popup */
     this.mapInstance.on('popupopen', (e: L.PopupEvent) => {

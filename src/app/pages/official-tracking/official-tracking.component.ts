@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { Official } from '../../models/Official';
 import { OfficialTrackingService } from '../../services/official-tracking.service';
 import { MapStateService } from '../../services/map-state.service';
+import { MapFactoryService } from '../../services/map-factory.service';
 import { EntityService } from '../../services/entity.service';
 import { Entity } from '../../models/Entity';
 
@@ -35,22 +36,9 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   constructor(
     private trackingService: OfficialTrackingService,
     private mapState: MapStateService,
+    private mapFactory: MapFactoryService,
     private entityService: EntityService,
-  ) {
-    if (typeof (L.Icon.Default.prototype as any)._getIconUrl === 'function') {
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-    }
-    L.Icon.Default.mergeOptions({
-      iconUrl: 'assets/images/marker-icon.png',
-      iconRetinaUrl: 'assets/images/marker-icon-2x.png',
-      shadowUrl: 'assets/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41],
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.loadOfficials();
@@ -109,17 +97,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   private initMap(): void {
     if (this.mapInstance) return;
 
-    this.mapInstance = L.map(this.mapContainer.nativeElement, {
-      center: [4.5709, -74.2973],
-      zoom: 6,
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(this.mapInstance);
-
-    this.mapState.setMap(this.mapInstance);
+    this.mapInstance = this.mapFactory.createMap(this.mapContainer.nativeElement);
 
     /* data might have loaded before the map was ready → render now */
     this.updateMapMarkers();

@@ -11,6 +11,7 @@ import { NeighborhoodService } from 'src/app/services/neighborhood.service';
 import { ColombiaApiService } from 'src/app/services/colombia-api.service';
 import { PointService } from 'src/app/services/point.service';
 import { MapStateService } from 'src/app/services/map-state.service';
+import { MapFactoryService } from 'src/app/services/map-factory.service';
 import { Commune } from 'src/app/models/Commune';
 import { Neighborhood } from 'src/app/models/Neighborhood';
 import { Point } from 'src/app/models/Point';
@@ -54,6 +55,7 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
     private colombiaApi: ColombiaApiService,
     private pointService: PointService,
     private mapState: MapStateService,
+    private mapFactory: MapFactoryService,
     private http: HttpClient,
     private snackBar: MatSnackBar
   ) {}
@@ -75,18 +77,9 @@ export class MapaTerritorialComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   private initMap(): void {
-    this.map = L.map(this.mapContainer.nativeElement, {
-      center: [4.5709, -74.2973],
-      zoom: 6,
+    this.map = this.mapFactory.createMap(this.mapContainer.nativeElement, {
       doubleClickZoom: false,
     });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(this.map);
-
-    this.mapState.setMap(this.map);
     this.map.on('click', (e: L.LeafletMouseEvent) => this.onMapClick(e));
   }
 
