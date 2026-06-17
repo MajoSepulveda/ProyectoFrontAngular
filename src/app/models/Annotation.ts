@@ -1,5 +1,5 @@
 export interface Annotation {
-  id_annotation?: number;
+  id_annotation: number;
   id_neighborhood: number | null;
   id_citizen: number;
   description: string;
@@ -7,4 +7,5 @@ export interface Annotation {
   longitude: number;
   status: string;
   registration_date?: string;
+  created_at: string;
 }

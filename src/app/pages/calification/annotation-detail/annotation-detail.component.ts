@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { ApiService } from '../../../services/api.service';
-import { Anotation } from '../../../models/Anotation';
+import { Annotation } from '../../../models/Annotation';
 import { AnnotationCategory } from '../../../models/annotation-category';
 import { Category } from '../../../models/Category';
 import { Vote } from '../../../models/Vote';
 import { Evidence } from '../../../models/Evidence';
+import { AnnotationVoteService } from '../../../services/annotation-vote.service';
 
 @Component({
   selector: 'app-annotation-detail',
@@ -18,7 +16,7 @@ import { Evidence } from '../../../models/Evidence';
   styleUrl: './annotation-detail.component.scss',
 })
 export class AnnotationDetailComponent implements OnInit {
-  annotation: Anotation | null = null;
+  annotation: Annotation | null = null;
   votes: Vote[] = [];
   evidences: Evidence[] = [];
   allCategories: Category[] = [];
@@ -32,7 +30,7 @@ export class AnnotationDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private api: ApiService,
+    private annotationVoteService: AnnotationVoteService,
   ) {}
 
   ngOnInit(): void {
@@ -46,17 +44,11 @@ export class AnnotationDetailComponent implements OnInit {
 
   private loadData(id: number): void {
     this.loading = true;
-    forkJoin({
-      annotation: this.api.get<Anotation>(`/annotations/${id}`),
-      votes: this.api.get<Vote[]>('/votes'),
-      evidences: this.api.get<Evidence[]>('/evidences'),
-      relations: this.api.get<AnnotationCategory[]>('/annotation-categories'),
-      categories: this.api.get<Category[]>('/categories'),
-    }).subscribe({
+    this.annotationVoteService.getAnnotationDetail(id).subscribe({
       next: (result) => {
         this.annotation = result.annotation;
-        this.votes = result.votes.filter((v) => v.id_annotation === id);
-        this.evidences = result.evidences.filter((e) => e.id_annotation === id);
+        this.votes = result.votes;
+        this.evidences = result.evidences;
         this.allCategories = result.categories;
         this.allRelations = result.relations;
 

@@ -5,12 +5,7 @@
   <div *ngIf="error" class="error">{{ error }}</div>
 
   <div *ngIf="annotation && !loading && !error" class="card">
-    <h2>{{ annotation.title }}</h2>
-
-    <div class="info-row">
-      <span class="label">Descripción:</span>
-      <span>{{ annotation.description }}</span>
-    </div>
+    <h2>{{ annotation.description }}</h2>
 
     <div class="info-row">
       <span class="label">Categoría:</span>

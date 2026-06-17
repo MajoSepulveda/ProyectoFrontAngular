@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Anotation } from '../../../models/Anotation';
+import { Annotation } from '../../../models/Annotation';
 import { Citizen } from '../../../models/Citizen';
 import { CreateVotePayload } from '../../../models/Vote';
 import { AnnotationVoteService } from '../../../services/annotation-vote.service';
@@ -18,7 +18,7 @@ import { SecurityService } from '../../../services/securityService';
 })
 export class AnnotationVoteComponent implements OnInit {
   /** The annotation being rated — loaded from route param :id */
-  selectedAnnotation: Anotation | null = null;
+  selectedAnnotation: Annotation | null = null;
 
   /** The simulated logged-in citizen (id_citizen = 1 for testing) */
   activeCitizen: Citizen | null = null;
