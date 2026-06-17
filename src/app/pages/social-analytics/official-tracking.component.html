@@ -10,7 +10,7 @@
       <label for="entity-select">Filtrar por entidad:</label>
       <select id="entity-select" [ngModel]="selectedEntityId" (ngModelChange)="selectedEntityId = $event; onEntityChange()">
         <option [ngValue]="null">Todas las entidades</option>
-        @for (entity of testEntities; track entity.id_entity) {
+        @for (entity of entities; track entity.id_entity) {
           <option [ngValue]="entity.id_entity">{{ entity.name }}</option>
         }
       </select>
@@ -47,8 +47,8 @@
           <li class="official-item">
             <div class="official-name">{{ official.name }}</div>
             <div class="official-meta">
-              Lat: {{ official.last_latitude.toFixed(4) }},
-              Lng: {{ official.last_longitude.toFixed(4) }}
+              Lat: {{ official.last_latitude != null ? official.last_latitude.toFixed(4) : '—' }},
+              Lng: {{ official.last_longitude != null ? official.last_longitude.toFixed(4) : '—' }}
             </div>
             <div class="official-meta">
               GPS: {{ official.gps_active ? 'Activo' : 'Inactivo' }}

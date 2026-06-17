@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 import { Official } from '../../models/Official';
 import { OfficialTrackingService } from './official-tracking.service';
 import { MapStateService } from '../../services/map-state.service';
+import { EntityService } from '../../services/entity.service';
+import { Entity } from '../../models/Entity';
 
 @Component({
   selector: 'app-official-tracking',
@@ -18,16 +20,11 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
 
   allOfficials: Official[] = [];
   filteredOfficials: Official[] = [];
+  entities: Entity[] = [];
   selectedEntityId: number | null = null;
 
   loading = false;
   error: string | null = null;
-
-  readonly testEntities = [
-    { id_entity: 1, name: 'Secretaría de Planeación' },
-    { id_entity: 2, name: 'Secretaría de Movilidad' },
-    { id_entity: 3, name: 'Secretaría de Ambiente' },
-  ];
 
   private mapInstance: L.Map | null = null;
   private officialGroup = L.layerGroup();
@@ -38,6 +35,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   constructor(
     private trackingService: OfficialTrackingService,
     private mapState: MapStateService,
+    private entityService: EntityService,
   ) {
     if (typeof (L.Icon.Default.prototype as any)._getIconUrl === 'function') {
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -56,6 +54,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
 
   ngOnInit(): void {
     this.loadOfficials();
+    this.loadEntities();
   }
 
   ngAfterViewInit(): void {
@@ -73,6 +72,17 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
 
   // ── Data loading ──────────────────────────────────────────
 
+  private loadEntities(): void {
+    this.entityService.getAll().subscribe({
+      next: (entities) => {
+        this.entities = entities;
+      },
+      error: (err) => {
+        console.error('Failed to load entities:', err);
+      },
+    });
+  }
+
   private loadOfficials(): void {
     this.loading = true;
     this.error = null;
@@ -83,6 +93,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
         this.trackingService.setLatestOfficials(officials);
         this.startTrackingActiveOfficials();
         this.applyFilter();
+        this.updateMapMarkers();
         this.loading = false;
       },
       error: (err) => {
@@ -109,12 +120,15 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
     }).addTo(this.mapInstance);
 
     this.mapState.setMap(this.mapInstance);
+
+    /* data might have loaded before the map was ready → render now */
+    this.updateMapMarkers();
   }
 
   // ── Tracking lifecycle ────────────────────────────────────
 
   private startTrackingActiveOfficials(): void {
-    const activeOfficials = this.allOfficials.filter((o) => o.status === 'active');
+    const activeOfficials = this.allOfficials.filter((o) => o.status === 'activo');
     const ids = activeOfficials.map((o) => o.id_official);
 
     if (ids.length === 0) {
@@ -192,8 +206,17 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
 
   private mergeOfficials(current: Official[], updates: Official[]): Official[] {
     const map = new Map<number, Official>();
-    current.forEach((o) => map.set(o.id_official, o));
-    updates.forEach((o) => map.set(o.id_official, o));
+    current.forEach((o) => map.set(o.id_official, { ...o }));
+    updates.forEach((update) => {
+      const existing = map.get(update.id_official);
+      if (existing) {
+        existing.last_latitude = update.last_latitude;
+        existing.last_longitude = update.last_longitude;
+        existing.last_gps_update = update.last_gps_update;
+      } else {
+        map.set(update.id_official, { ...update });
+      }
+    });
     return Array.from(map.values());
   }
 
@@ -205,7 +228,7 @@ export class OfficialTrackingComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private applyFilter(): void {
-    let filtered = this.allOfficials.filter((o) => o.status === 'active');
+    let filtered = this.allOfficials.filter((o) => o.status === 'activo');
     if (this.selectedEntityId !== null) {
       filtered = filtered.filter((o) => o.id_entity === this.selectedEntityId);
     }

@@ -3,6 +3,7 @@ import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { OfficialTrackingComponent } from './pages/social-analytics/official-tracking.component';
+import { SocialAnalyticsRoutes } from './pages/social-analytics/social-analytics.routes';
 import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
@@ -36,6 +37,10 @@ export const routes: Routes = [
       {
         path: 'social-analytics/tracking',
         component: OfficialTrackingComponent,
+      },
+      {
+        path: 'social-analytics',
+        children: SocialAnalyticsRoutes,
       },
     ],
   },
