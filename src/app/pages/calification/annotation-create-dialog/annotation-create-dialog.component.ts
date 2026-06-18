@@ -192,7 +192,7 @@ export class AnnotationCreateDialogComponent implements OnInit {
     if (this.selectedEntityIds.length > 0) {
       for (const id_entity of this.selectedEntityIds) {
         ops.push(
-          this.apiService.post('/annotation-entities', {
+          this.apiService.post('/interested-parties', {
             id_annotation: annotationId,
             id_entity,
           })
