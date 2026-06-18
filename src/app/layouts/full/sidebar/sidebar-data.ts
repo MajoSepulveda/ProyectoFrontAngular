@@ -2,7 +2,7 @@ import { NavItem } from './nav-item/nav-item';
 
 export const navItems: NavItem[] = [
   {
-    navCap: 'Home',
+    navCap: 'Inicio',
   },
   {
     displayName: 'Dashboard',
@@ -10,7 +10,7 @@ export const navItems: NavItem[] = [
     route: '/dashboard',
   },
   {
-    displayName: 'Reports',
+    displayName: 'Reportes',
     iconName: 'solar:chart-square-line-duotone',
     route: '/dashboard/reports',
   },
@@ -23,47 +23,47 @@ export const navItems: NavItem[] = [
     navCap: 'Gestión',
   },
   {
-    displayName: 'Annotations',
+    displayName: 'Anotaciones',
     iconName: 'solar:notes-line-duotone',
     route: '/annotations',
   },
   {
-    displayName: 'Category',
+    displayName: 'Categorías',
     iconName: 'solar:tag-line-duotone',
     route: '/dashboard/category',
   },
   {
-    displayName: 'Citizen',
+    displayName: 'Ciudadanos',
     iconName: 'solar:user-line-duotone',
     route: '/dashboard/citizen',
   },
   {
-    displayName: 'City',
+    displayName: 'Ciudades',
     iconName: 'solar:city-line-duotone',
     route: '/dashboard/city',
   },
   {
-    displayName: 'Commune',
+    displayName: 'Comunas',
     iconName: 'solar:map-point-line-duotone',
     route: '/dashboard/commune',
   },
   {
-    displayName: 'Department',
+    displayName: 'Departamentos',
     iconName: 'solar:buildings-line-duotone',
     route: '/dashboard/department',
   },
   {
-    displayName: 'Entity',
+    displayName: 'Entidades',
     iconName: 'solar:case-round-line-duotone',
     route: '/dashboard/entity',
   },
   {
-    displayName: 'Neighborhood',
+    displayName: 'Barrios',
     iconName: 'solar:home-smile-line-duotone',
     route: '/dashboard/neighborhood',
   },
   {
-    displayName: 'Official',
+    displayName: 'Funcionarios',
     iconName: 'solar:user-id-line-duotone',
     route: '/dashboard/official',
   },

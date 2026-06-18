@@ -10,14 +10,14 @@
         <!-- ------------------------------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Basic</mat-card-title>
+            <mat-card-title>Básico</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
-            <mat-chip-listbox aria-label="Fish selection">
-              <mat-chip-option class="text-sm" color="primary">One fish</mat-chip-option>
-              <mat-chip-option class="text-sm">Two fish</mat-chip-option>
-              <mat-chip-option class="text-sm" color="accent" selected>Accent fish</mat-chip-option>
-              <mat-chip-option class="text-sm" color="warn">Warn fish</mat-chip-option>
+            <mat-chip-listbox aria-label="Selección de peces">
+              <mat-chip-option class="text-sm" color="primary">Un pez</mat-chip-option>
+              <mat-chip-option class="text-sm">Dos peces</mat-chip-option>
+              <mat-chip-option class="text-sm" color="accent" selected>Pez acento</mat-chip-option>
+              <mat-chip-option class="text-sm" color="warn">Pez advertencia</mat-chip-option>
             </mat-chip-listbox>
           </mat-card-content>
         </mat-card>
@@ -33,17 +33,17 @@
             <mat-card-title>Avatar</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
-            <mat-chip-set aria-label="Dog selection">
+            <mat-chip-set aria-label="Selección de perros">
               <mat-chip class="text-sm">
-                <img matChipAvatar src="/assets/images/profile/user-1.jpg" alt="Photo of a Shiba Inu" />
+                <img matChipAvatar src="/assets/images/profile/user-1.jpg" alt="Foto de un Shiba Inu" />
                 Anderson
               </mat-chip>
               <mat-chip class="text-sm" color="primary">
-                <img matChipAvatar src="/assets/images/profile/user-2.jpg" alt="Photo of a Shiba Inu" />
+                <img matChipAvatar src="/assets/images/profile/user-2.jpg" alt="Foto de un Shiba Inu" />
                 Monty
               </mat-chip>
               <mat-chip class="text-sm" color="accent">
-                <img matChipAvatar src="/assets/images/profile/user-3.jpg" alt="Photo of a Shiba Inu" />
+                <img matChipAvatar src="/assets/images/profile/user-3.jpg" alt="Foto de un Shiba Inu" />
                 Mathew
               </mat-chip>
             </mat-chip-set>
@@ -58,7 +58,7 @@
 
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Drag n Drop</mat-card-title>
+            <mat-card-title>Arrastrar y Soltar</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-chip-set class="example-chip" cdkDropList cdkDropListOrientation="horizontal"
@@ -79,10 +79,10 @@
         <!-- ------------------------------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Stacked </mat-card-title>
+            <mat-card-title>Apilado </mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
-            <mat-chip-listbox class="mat-mdc-chip-set-stacked" aria-label="Color selection">
+            <mat-chip-listbox class="mat-mdc-chip-set-stacked" aria-label="Selección de color">
               @for(chip of availableColors; track chip.color) {
               <mat-chip-option selected [color]="chip.color">
                 {{ chip.name }}
@@ -100,23 +100,23 @@
 
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Input</mat-card-title>
+            <mat-card-title>Entrada</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Favorite Fruits</mat-label>
-              <mat-chip-grid #chipGrid aria-label="Enter fruits">
+              <mat-label>Frutas Favoritas</mat-label>
+              <mat-chip-grid #chipGrid aria-label="Ingresar frutas">
                 @for(fruit of fruits; track fruit.name) {
                 <mat-chip-row (removed)="remove(fruit)" [editable]="true" (edited)="edit(fruit, $event)"
                   [aria-description]="'press enter to edit ' + fruit.name" class="text-sm">
                   {{ fruit.name }}
-                  <button matChipRemove [attr.aria-label]="'remove ' + fruit.name">
+                  <button matChipRemove [attr.aria-label]="'eliminar ' + fruit.name">
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </mat-chip-row>
                 }
 
-                <input placeholder="New fruit..." [matChipInputFor]="chipGrid"
+                <input placeholder="Nueva fruta..." [matChipInputFor]="chipGrid"
                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
                   (matChipInputTokenEnd)="add($event)" />
               </mat-chip-grid>
@@ -132,35 +132,35 @@
 
         <mat-card class="border! border-border! shadow-none">
           <div class="p-4">
-            <mat-card-title>Form Control</mat-card-title>
+            <mat-card-title>Control de Formulario</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <div class="flex md:flex-nowrap flex-wrap sm:gap-8 gap-4">
               <button mat-stroked-button color="primary" (click)="formControl.disable()">
-                Disable form control
+                Deshabilitar control
               </button>
               <button mat-raised-button color="primary" (click)="formControl.enable()">
-                Enable form control
+                Habilitar control
               </button>
             </div>
             <mat-form-field appearance="outline" class="w-full mt-5">
-              <mat-label>Video keywords</mat-label>
-              <mat-chip-grid #formChip aria-label="Enter keywords" [formControl]="formControl">
+              <mat-label>Palabras clave de video</mat-label>
+              <mat-chip-grid #formChip aria-label="Ingresar palabras clave" [formControl]="formControl">
                 @for (keyword of keywords(); track keyword) {
                 <mat-chip-row (removed)="removeKeyword(keyword)">
                   {{ keyword }}
-                  <button matChipRemove aria-label="'remove ' + keyword">
+                  <button matChipRemove aria-label="'eliminar ' + keyword">
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </mat-chip-row>
                 }
               </mat-chip-grid>
-              <input placeholder="New keyword..." [matChipInputFor]="formChip"
+              <input placeholder="Nueva palabra clave..." [matChipInputFor]="formChip"
                 (matChipInputTokenEnd)="addForm($event)" />
             </mat-form-field>
 
             <p>
-              <span class="font-semibold">The following keywords are entered:</span>
+              <span class="font-semibold">Las siguientes palabras clave están ingresadas:</span>
               {{ formControl.value }}
             </p>
           </mat-card-content>

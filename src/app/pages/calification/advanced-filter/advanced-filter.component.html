@@ -5,15 +5,15 @@
       <!-- Categories filter -->
       <mat-expansion-panel expanded>
         <mat-expansion-panel-header>
-          <mat-panel-title>Categories</mat-panel-title>
+          <mat-panel-title>Categorías</mat-panel-title>
         </mat-expansion-panel-header>
         <app-tree-filter
           [nodes]="categoryFilterService.tree"
           [loading]="categoryFilterService.loading"
           labelKey="name"
           [showCounts]="true"
-          emptyMessage="No categories available"
-          loadingMessage="Loading categories…"
+          emptyMessage="No hay categorías disponibles"
+          loadingMessage="Cargando categorías…"
           (filterChange)="onFilterChange()"
         />
       </mat-expansion-panel>
@@ -21,12 +21,12 @@
       <!-- Location filter -->
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>Location</mat-panel-title>
+          <mat-panel-title>Ubicación</mat-panel-title>
         </mat-expansion-panel-header>
 
         <div class="location-selectors">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Department</mat-label>
+            <mat-label>Departamento</mat-label>
             <mat-select (selectionChange)="onDepartmentChange($event.value)">
               <mat-option
                 *ngFor="let d of locationFilterService.departments"
@@ -42,7 +42,7 @@
             subscriptSizing="dynamic"
             *ngIf="locationFilterService.selectedDepartmentId != null"
           >
-            <mat-label>City</mat-label>
+            <mat-label>Ciudad</mat-label>
             <mat-select (selectionChange)="onCityChange($event.value)">
               <mat-option
                 *ngFor="let c of locationFilterService.cities"
@@ -60,7 +60,7 @@
           [loading]="false"
           labelKey="name"
           [showCounts]="false"
-          emptyMessage="Select a city to see neighborhoods"
+          emptyMessage="Selecciona una ciudad para ver barrios"
           (filterChange)="onFilterChange()"
         />
       </mat-expansion-panel>
@@ -71,20 +71,20 @@
   <main class="map-panel">
     <div class="panel-state" *ngIf="loading">
       <mat-spinner diameter="32"></mat-spinner>
-      <span>Loading data…</span>
+      <span>Cargando datos…</span>
     </div>
 
     <div class="map-wrapper" [hidden]="loading">
       <div class="map-info-bar">
         <span *ngIf="allAnnotations.length === 0">
-          <mat-icon class="info-icon">info</mat-icon> No annotations in the system
+          <mat-icon class="info-icon">info</mat-icon> No hay anotaciones en el sistema
         </span>
         <span *ngIf="allAnnotations.length > 0 && filteredAnnotations.length === 0">
-          <mat-icon class="info-icon">filter_alt_off</mat-icon> No matching results — adjust your filters
+          <mat-icon class="info-icon">filter_alt_off</mat-icon> Sin resultados — ajusta tus filtros
         </span>
         <span *ngIf="filteredAnnotations.length > 0">
           <mat-icon class="info-icon">place</mat-icon>
-          {{ filteredAnnotations.length }} annotation{{ filteredAnnotations.length !== 1 ? 's' : '' }} on map
+          {{ filteredAnnotations.length }} anotacion{{ filteredAnnotations.length !== 1 ? 'es' : '' }} en el mapa
         </span>
       </div>
 

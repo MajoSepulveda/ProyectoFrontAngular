@@ -7,11 +7,11 @@
       <div class="col-span-12 sm:col-span-6 lg:col-span-4">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Basic</mat-card-title>
+            <mat-card-title>Básico</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
-            <button mat-flat-button color="primary" matTooltip="Info about the action">
-              Button
+            <button mat-flat-button color="primary" matTooltip="Información sobre la acción">
+              Botón
             </button>
           </mat-card-content>
         </mat-card>
@@ -19,11 +19,11 @@
       <div class="col-span-12 sm:col-span-6 lg:col-span-4">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Uppercase</mat-card-title>
+            <mat-card-title>Mayúsculas</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
-            <button mat-flat-button color="primary" matTooltip="Info about the action" matTooltipClass="text-uppercase">
-              Button
+            <button mat-flat-button color="primary" matTooltip="Información sobre la acción" matTooltipClass="text-uppercase">
+              Botón
             </button>
           </mat-card-content>
         </mat-card>
@@ -31,16 +31,16 @@
       <div class="col-span-12 lg:col-span-4 sm:col-span-6">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Disabled on click</mat-card-title>
+            <mat-card-title>Deshabilitado al hacer clic</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
-            <button mat-flat-button color="primary" matTooltip="Info about the action"
+            <button mat-flat-button color="primary" matTooltip="Información sobre la acción"
               [matTooltipDisabled]="disabled.value" class="me-2">
-              Action
+              Acción
             </button>
 
             <mat-checkbox [formControl]="disabled" class="example-disabled-checkbox">
-              Tooltip disabled
+              Tooltip deshabilitado
             </mat-checkbox>
           </mat-card-content>
         </mat-card>
@@ -49,24 +49,24 @@
       <div class="col-span-12 lg:col-span-6">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Position</mat-card-title>
+            <mat-card-title>Posición</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border flex! md:flex-nowrap flex-wrap gap-2">
-            <button mat-flat-button color="primary" #tooltip="matTooltip" matTooltip="Info about the action"
+            <button mat-flat-button color="primary" #tooltip="matTooltip" matTooltip="Información sobre la acción"
               matTooltipPosition="below" matTooltipHideDelay="100000">
-              Below
+              Abajo
             </button>
-            <button mat-flat-button color="accent" #tooltip="matTooltip" matTooltip="Info about the action"
+            <button mat-flat-button color="accent" #tooltip="matTooltip" matTooltip="Información sobre la acción"
               matTooltipPosition="above" matTooltipHideDelay="100000">
-              Above
+              Arriba
             </button>
-            <button mat-flat-button color="warn" #tooltip="matTooltip" matTooltip="Info about the action"
+            <button mat-flat-button color="warn" #tooltip="matTooltip" matTooltip="Información sobre la acción"
               matTooltipPosition="left" matTooltipHideDelay="100000">
-              Left
+              Izquierda
             </button>
-            <button mat-flat-button color="primary" #tooltip="matTooltip" matTooltip="Info about the action"
+            <button mat-flat-button color="primary" #tooltip="matTooltip" matTooltip="Información sobre la acción"
               matTooltipPosition="right" matTooltipHideDelay="100000">
-              Right
+              Derecha
             </button>
           </mat-card-content>
         </mat-card>
@@ -75,28 +75,28 @@
       <div class="col-span-12 lg:col-span-6">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Show and Hide</mat-card-title>
+            <mat-card-title>Mostrar y Ocultar</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <div class="grid grid-cols-12 gap-6">
               <div class="col-span-12 sm:col-span-4">
                 <mat-form-field class="w-full" appearance="outline">
-                  <mat-label>Show delay</mat-label>
+                  <mat-label>Retraso al mostrar</mat-label>
                   <input matInput type="number" [formControl]="showDelay" />
-                  <mat-hint>milliseconds</mat-hint>
+                  <mat-hint>milisegundos</mat-hint>
                 </mat-form-field>
               </div>
               <div class="col-span-12 sm:col-span-4">
                 <mat-form-field class="w-full" appearance="outline">
-                  <mat-label>Hide delay</mat-label>
+                  <mat-label>Retraso al ocultar</mat-label>
                   <input matInput type="number" [formControl]="hideDelay2" />
-                  <mat-hint>milliseconds</mat-hint>
+                  <mat-hint>milisegundos</mat-hint>
                 </mat-form-field>
               </div>
               <div class="col-span-12 sm:col-span-4">
-                <button mat-flat-button color="primary" matTooltip="Info about the action"
+                <button mat-flat-button color="primary" matTooltip="Información sobre la acción"
                   [matTooltipShowDelay]="showDelay.value" [matTooltipHideDelay]="hideDelay2.value">
-                  Action
+                  Acción
                 </button>
               </div>
             </div>
@@ -107,17 +107,17 @@
       <div class="col-span-12 lg:col-span-4 sm:col-span-6">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Change Message</mat-card-title>
+            <mat-card-title>Cambiar mensaje</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-form-field class="w-full" appearance="outline">
-              <mat-label>Tooltip message</mat-label>
+              <mat-label>Mensaje del tooltip</mat-label>
               <input matInput [formControl]="message" />
             </mat-form-field>
 
             <button mat-flat-button color="primary" [matTooltip]="message.value || ''"
-              aria-label="Button that displays a tooltip with a custom message">
-              Action
+              aria-label="Botón que muestra un tooltip con un mensaje personalizado">
+              Acción
             </button>
           </mat-card-content>
         </mat-card>

@@ -1,11 +1,11 @@
 <mat-card class="cardWithShadow">
   <mat-card-content class="pb-0!">
-    <mat-card-title class="mb-3">Product Performance</mat-card-title>
+    <mat-card-title class="mb-3">Rendimiento de Productos</mat-card-title>
     <div class="relative overflow-auto">
       <table mat-table [dataSource]="dataSource" class="min-w-full">
         <!-- id Column -->
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef class="font-semibold text-sm">Id</th>
+          <th mat-header-cell *matHeaderCellDef class="font-semibold text-sm">ID</th>
           <td class="whitespace-nowrap" mat-cell *matCellDef="let element">
             {{ element.id }}
           </td>
@@ -14,7 +14,7 @@
         <!-- Position Column -->
         <ng-container matColumnDef="assigned">
           <th mat-header-cell *matHeaderCellDef class="font-semibold text-sm">
-            Assigned
+            Asignado
           </th>
           <td class="whitespace-nowrap" mat-cell *matCellDef="let element">
             <h6 class="text-sm font-semibold">
@@ -28,7 +28,7 @@
 
         <!-- Name Column -->
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef class="font-semibold text-sm">Name</th>
+          <th mat-header-cell *matHeaderCellDef class="font-semibold text-sm">Nombre</th>
           <td class="whitespace-nowrap text-muted" mat-cell *matCellDef="let element">
             {{ element.productName }}
           </td>
@@ -37,7 +37,7 @@
         <!-- Weight Column -->
         <ng-container matColumnDef="priority">
           <th mat-header-cell *matHeaderCellDef class="font-semibold text-sm">
-            Priority
+            Prioridad
           </th>
           <td class="whitespace-nowrap" mat-cell *matCellDef="let element">
             @if(element.priority == 'low') {
@@ -68,7 +68,7 @@
         <!-- Symbol Column -->
         <ng-container matColumnDef="budget">
           <th mat-header-cell *matHeaderCellDef class="font-semibold text-sm">
-            Budget
+            Presupuesto
           </th>
           <td class="whitespace-nowrap" mat-cell *matCellDef="let element">
             {{ element.budget }}k

@@ -26,7 +26,7 @@
             <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, field.key)" />
           </div>
           @if (imagePreviews[field.key]) {
-            <img [src]="imagePreviews[field.key]" class="w-24 h-24 rounded object-cover border border-gray-200" alt="preview" />
+            <img [src]="imagePreviews[field.key]" class="w-24 h-24 rounded object-cover border border-gray-200" alt="vista previa" />
           }
         </div>
       } @else {
