@@ -33,9 +33,9 @@ export class EntityComponent implements OnInit {
     { key: 'name',     label: 'Nombre',    type: 'text' },
     { key: 'nit',      label: 'NIT',       type: 'text' },
     { key: 'email',    label: 'Correo',    type: 'email' },
-    { key: 'phone',    label: 'Teléfono',  type: 'text' },
-    { key: 'address',  label: 'Dirección', type: 'text' },
-    { key: 'logo_url', label: 'Logo',      type: 'image' },
+    { key: 'phone',    label: 'Teléfono',  type: 'text', required: false },
+    { key: 'address',  label: 'Dirección', type: 'text', required: false },
+    { key: 'logo_url', label: 'Logo',      type: 'image', required: false },
     {
       key: 'status', label: 'Estado', type: 'select',
       options: [

@@ -35,7 +35,7 @@ export class OfficialComponent implements OnInit {
   editFields: EditField[] = [
     { key: 'name',              label: 'Nombre',             type: 'text' },
     { key: 'email',             label: 'Correo',             type: 'email' },
-    { key: 'phone',             label: 'Teléfono',           type: 'text' },
+    { key: 'phone',             label: 'Teléfono',           type: 'text', required: false },
     { key: 'role',              label: 'Rol',                type: 'text' },
     { key: 'status',            label: 'Estado',             type: 'select', options: [
       { value: 'activo',      label: 'Activo' },
@@ -43,8 +43,8 @@ export class OfficialComponent implements OnInit {
     ]},
     { key: 'id_entity',  label: 'ID Entidad', type: 'number' },
     { key: 'gps_active',     label: 'GPS Activo',  type: 'boolean' },
-    { key: 'last_latitude',  label: 'Latitud',     type: 'number' },
-    { key: 'last_longitude', label: 'Longitud',    type: 'number' },
+    { key: 'last_latitude',  label: 'Latitud',     type: 'number', required: false },
+    { key: 'last_longitude', label: 'Longitud',    type: 'number', required: false },
   ];
 
   ngOnInit(): void {

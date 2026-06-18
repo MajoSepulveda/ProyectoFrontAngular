@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 import { ColombiaApiService } from 'src/app/services/colombia-api.service';
@@ -35,6 +35,9 @@ export interface ComunaDialogData {
               <mat-option [value]="d.id_department">{{ d.name }}</mat-option>
             }
           </mat-select>
+          @if (form.get('department_id')?.hasError('required') && form.get('department_id')?.touched) {
+            <mat-error>Departamento es requerido</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
@@ -47,11 +50,17 @@ export interface ComunaDialogData {
               <mat-option [value]="c.id_city">{{ c.name }}</mat-option>
             }
           </mat-select>
+          @if (form.get('id_city')?.hasError('required') && form.get('id_city')?.touched) {
+            <mat-error>Ciudad es requerida</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Nombre</mat-label>
           <input matInput formControlName="name" type="text" />
+          @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+            <mat-error>Nombre es requerido</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
@@ -86,10 +95,10 @@ export class ComunaDialogComponent implements OnInit {
     this.isEdit = !!this.dialogData.data;
     const existing = this.dialogData.data ?? {};
     this.form = new FormGroup({
-      department_id: new FormControl(existing.department_id ?? ''),
-      id_city:       new FormControl(existing.id_city ?? ''),
-      name:          new FormControl(existing.name ?? ''),
-      status:        new FormControl(existing.status ?? 'activa'),
+      department_id: new FormControl(existing.department_id ?? '', [Validators.required]),
+      id_city:       new FormControl(existing.id_city ?? '', [Validators.required]),
+      name:          new FormControl(existing.name ?? '', [Validators.required]),
+      status:        new FormControl(existing.status ?? 'activa', [Validators.required]),
     });
   }
 
@@ -117,8 +126,9 @@ export class ComunaDialogComponent implements OnInit {
   }
 
   confirm(): void {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
     const raw = this.form.getRawValue();
-    if (!raw.name?.trim() || !raw.id_city) return;
     this.dialogRef.close({
       id_city: raw.id_city,
       name: raw.name.trim(),
