@@ -4,6 +4,7 @@ import {
   Auth,
   signInWithPopup,
   signInWithRedirect,
+  getRedirectResult,
   authState,
   signOut,
   GoogleAuthProvider,
@@ -49,13 +50,22 @@ export class SocialAuthService {
     await this.procesarLogin(result.user);
   }
 
-  // Microsoft usa redirect porque su login page envía COOP: same-origin
-  // lo que destruye window.opener necesario para el flujo popup de Firebase
   async loginConMicrosoft(): Promise<void> {
     const provider = new OAuthProvider('microsoft.com');
     provider.setCustomParameters({ prompt: 'select_account' });
-    localStorage.setItem(MS_REDIRECT_KEY, '1');
-    await signInWithRedirect(this.auth, provider);
+    try {
+      // Firebase 12 maneja COOP: same-origin de Microsoft con polling fallback
+      const result = await signInWithPopup(this.auth, provider);
+      await this.procesarLogin(result.user);
+    } catch (popupError: any) {
+      // Si el popup falla por COOP, caemos al flujo redirect
+      if (popupError?.code === 'auth/popup-blocked' || popupError?.code === 'auth/cancelled-popup-request') {
+        throw popupError;
+      }
+      console.warn('Popup falló, intentando redirect:', popupError?.code);
+      localStorage.setItem(MS_REDIRECT_KEY, '1');
+      await signInWithRedirect(this.auth, provider);
+    }
   }
 
   async verificarRedirectMicrosoft(): Promise<void> {
@@ -63,6 +73,11 @@ export class SocialAuthService {
     localStorage.removeItem(MS_REDIRECT_KEY);
 
     try {
+      const result = await getRedirectResult(this.auth);
+      if (result?.user) {
+        await this.procesarLogin(result.user);
+        return;
+      }
       const user = await firstValueFrom(
         authState(this.auth).pipe(
           filter((u): u is User => u !== null),
@@ -71,8 +86,8 @@ export class SocialAuthService {
         )
       );
       await this.procesarLogin(user);
-    } catch {
-      console.error('Microsoft redirect: no se detectó usuario autenticado');
+    } catch (error) {
+      console.error('Microsoft redirect: error al procesar resultado', error);
     }
   }
 
