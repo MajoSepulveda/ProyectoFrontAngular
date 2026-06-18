@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { StarterComponent } from './starter/starter.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { ReportsComponent } from './reports/reports.component';
 import { CategoryComponent } from './category/category.component';
 import { CitizenComponent } from './citizen/citizen.component';
@@ -13,12 +13,11 @@ import { OfficialComponent } from './official/official.component';
 export const PagesRoutes: Routes = [
   {
     path: '',
-    component: StarterComponent,
+    component: DashboardComponent,
     data: {
-      title: 'Starter',
+      title: 'Dashboard',
       urls: [
-        { title: 'Dashboard', url: '/dashboard' },
-        { title: 'Starter' },
+        { title: 'Dashboard' },
       ],
     },
   },

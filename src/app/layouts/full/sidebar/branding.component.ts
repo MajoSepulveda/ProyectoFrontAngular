@@ -10,7 +10,7 @@ import { CoreService } from 'src/app/services/core.service';
         src="./assets/images/logos/logo-uc2.png"
         class="align-middle m-2"
         alt="logo"
-        style="max-height:50px;width:auto"
+        style="max-height:200px;width:auto"
       />
     </a>
   `,

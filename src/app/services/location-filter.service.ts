@@ -11,11 +11,7 @@ import { Commune } from '../models/Commune';
 import { Neighborhood } from '../models/Neighborhood';
 import { Annotation } from '../models/Annotation';
 import { TreeNode } from '../models/tree-node';
-
-export interface LocationNode {
-  id: number;
-  name: string;
-}
+import { LocationNode } from '../models/location-node';
 
 @Injectable({
   providedIn: 'root',

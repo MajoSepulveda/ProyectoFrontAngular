@@ -2,27 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { Official } from '../models/Official';
+import { TrackingStartResponse, TrackingStopResponse } from '../models/tracking-responses';
 import { ApiService } from '../services/api.service';
 import { environment } from '../../environments/environment';
-
-/** Shape of the POST /tracking/start response */
-export interface TrackingStartResponse {
-  ignored: {
-    inactive: number[];
-    invalid: number[];
-    missing: number[];
-    missing_coords: number[];
-  };
-  started_ids: number[];
-}
-
-/** Shape of the POST /tracking/stop response */
-export interface TrackingStopResponse {
-  invalid: number[];
-  not_tracking: number[];
-  stopped_all: boolean;
-  stopped_ids: number[];
-}
 
 @Injectable({
   providedIn: 'root',

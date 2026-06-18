@@ -12,14 +12,7 @@ import { Category } from '../../../models/Category';
 import { Entity } from '../../../models/Entity';
 import { Annotation } from '../../../models/Annotation';
 import { EntityService } from '../../../services/entity.service';
-
-export interface AnnotationCreateData {
-  lat: number;
-  lng: number;
-  id_citizen: number;
-  id_neighborhood: number | null;
-  neighborhoodName?: string;
-}
+import { AnnotationCreateData } from '../../../models/annotation-create-data';
 
 @Component({
   selector: 'app-annotation-create-dialog',

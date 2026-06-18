@@ -16,10 +16,8 @@ import { Neighborhood } from '../../../models/Neighborhood';
 import { MapStateService } from '../../../services/map-state.service';
 import { MapFactoryService } from '../../../services/map-factory.service';
 import { TreeFilterComponent } from '../../../components/tree-filter/tree-filter.component';
-import {
-  AnnotationCreateDialogComponent,
-  AnnotationCreateData,
-} from '../annotation-create-dialog/annotation-create-dialog.component';
+import { AnnotationCreateDialogComponent } from '../annotation-create-dialog/annotation-create-dialog.component';
+import { AnnotationCreateData } from '../../../models/annotation-create-data';
 
 @Component({
   selector: 'app-advanced-filter',

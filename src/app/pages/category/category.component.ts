@@ -6,15 +6,7 @@ import { ApiService } from 'src/app/services/api.service';
 import { EditDialogComponent, EditField } from 'src/app/components/dialogs/edit/edit-dialog.component';
 import { DeleteDialogComponent } from 'src/app/components/dialogs/delete/delete-dialog.component';
 import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-dialog.component';
-
-interface Category {
-  id_category: number;
-  name: string;
-  description: string;
-  image_url: string | null;
-  id_parent_category: number | null;
-  status: string;
-}
+import { Category } from 'src/app/models/Category';
 
 @Component({
   selector: 'app-category',

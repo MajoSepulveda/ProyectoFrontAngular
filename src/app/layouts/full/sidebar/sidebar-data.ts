@@ -58,7 +58,7 @@ export const navItems: NavItem[] = [
     route: '/dashboard/entity',
   },
   {
-    displayName: 'Official',
+    displayName: 'Funcionarios',
     iconName: 'solar:user-id-line-duotone',
     route: '/dashboard/official',
   },
