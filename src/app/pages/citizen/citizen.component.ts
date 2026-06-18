@@ -36,8 +36,6 @@ export class CitizenComponent implements OnInit {
       { value: 'activo',      label: 'Activo' },
       { value: 'desactivado', label: 'Desactivado' },
     ]},
-    { key: 'latitude',  label: 'Latitud',    type: 'number' },
-    { key: 'longitude', label: 'Longitud',   type: 'number' },
   ];
 
   ngOnInit(): void {
