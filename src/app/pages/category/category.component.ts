@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
 import { ApiService } from 'src/app/services/api.service';
 import { EditDialogComponent, EditField } from 'src/app/components/dialogs/edit/edit-dialog.component';
@@ -22,8 +23,9 @@ interface Category {
   styleUrls: ['./category.component.css'],
 })
 export class CategoryComponent implements OnInit {
-  private api    = inject(ApiService);
-  private dialog = inject(MatDialog);
+  private api      = inject(ApiService);
+  private dialog   = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   parents:     Category[] = [];
   childrenMap: Record<number, Category[]> = {};
@@ -38,7 +40,7 @@ export class CategoryComponent implements OnInit {
     { key: 'name',               label: 'Nombre',                     type: 'text' },
     { key: 'description',        label: 'Descripción',                type: 'text' },
     { key: 'image_url',          label: 'Imagen',                     type: 'image' },
-    { key: 'id_parent_category', label: 'Categoría padre (opcional)', type: 'select', options: [] },
+    { key: 'id_parent_category', label: 'Categoría padre (opcional)', type: 'select', options: [], required: false },
     { key: 'status',             label: 'Estado',                     type: 'select', options: this.statusOptions },
   ];
 
@@ -96,7 +98,10 @@ export class CategoryComponent implements OnInit {
     }).afterClosed().subscribe(result => {
       if (!result) return;
       const payload = { ...result, id_parent_category: result.id_parent_category || null };
-      this.api.post('/categories', payload).subscribe(() => this.load());
+      this.api.post('/categories', payload).subscribe({
+        next: () => this.load(),
+        error: (err) => this.snackBar.open(err.error?.message || 'Error al crear', 'Cerrar', { duration: 4000 }),
+      });
     });
   }
 
@@ -111,7 +116,10 @@ export class CategoryComponent implements OnInit {
     }).afterClosed().subscribe(result => {
       if (!result) return;
       const payload = { ...result, id_parent_category: result.id_parent_category || null };
-      this.api.put(`/categories/${item.id_category}`, payload).subscribe(() => this.load());
+      this.api.put(`/categories/${item.id_category}`, payload).subscribe({
+        next: () => this.load(),
+        error: (err) => this.snackBar.open(err.error?.message || 'Error al actualizar', 'Cerrar', { duration: 4000 }),
+      });
     });
   }
 

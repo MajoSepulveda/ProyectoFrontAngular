@@ -38,9 +38,9 @@ export class CityComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
-      data: { title: 'Crear Ciudad', fields: this.editFields },
+      data: { title: 'Crear Ciudad', fields: this.editFields, endpoint: '/cities' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/cities', result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 
@@ -50,9 +50,9 @@ export class CityComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Ciudad', data: item, fields: this.editFields },
+      data: { title: 'Editar Ciudad', data: item, fields: this.editFields, endpoint: '/cities', idKey: 'id_city' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.put(`/cities/${item.id_city}`, result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 

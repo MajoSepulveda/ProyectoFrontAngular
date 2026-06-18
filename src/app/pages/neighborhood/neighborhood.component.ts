@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
 import { ApiService } from 'src/app/services/api.service';
 import { DataTableComponent, TableColumn } from 'src/app/components/table-list/table-list.component';
@@ -17,8 +16,6 @@ import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-
 export class NeighborhoodComponent implements OnInit {
   private api    = inject(ApiService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-
   data: any[] = [];
 
   columns: TableColumn[] = [
@@ -47,12 +44,9 @@ export class NeighborhoodComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
-      data: { title: 'Crear Barrio', fields: this.editFields },
+      data: { title: 'Crear Barrio', fields: this.editFields, endpoint: '/neighborhoods' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/neighborhoods', result).subscribe({
-        next: () => this.ngOnInit(),
-        error: () => this.snackBar.open('Ya existe un barrio con ese nombre en esta comuna', 'Cerrar', { duration: 4000 }),
-      });
+      if (result) this.ngOnInit();
     });
   }
 
@@ -62,9 +56,9 @@ export class NeighborhoodComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Barrio', data: item, fields: this.editFields },
+      data: { title: 'Editar Barrio', data: item, fields: this.editFields, endpoint: '/neighborhoods', idKey: 'id_neighborhood' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.put(`/neighborhoods/${item.id_neighborhood}`, result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 

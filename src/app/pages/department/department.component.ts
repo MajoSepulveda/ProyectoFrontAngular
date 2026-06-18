@@ -36,9 +36,9 @@ export class DepartmentComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
-      data: { title: 'Crear Departamento', fields: this.editFields },
+      data: { title: 'Crear Departamento', fields: this.editFields, endpoint: '/departments' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/departments', result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 
@@ -48,9 +48,9 @@ export class DepartmentComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Departamento', data: item, fields: this.editFields },
+      data: { title: 'Editar Departamento', data: item, fields: this.editFields, endpoint: '/departments', idKey: 'id_department' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.put(`/departments/${item.id_department}`, result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 

@@ -1,10 +1,10 @@
 <h2 mat-dialog-title class="font-bold text-lg">{{ dialogData.title }}</h2>
 
 <mat-dialog-content style="width:520px">
-  @if (duplicateError) {
+  @if (duplicateError || serverError) {
     <div class="flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 rounded px-3 py-2 mb-3 text-sm">
       <mat-icon style="font-size:18px;width:18px;height:18px;line-height:18px;">error_outline</mat-icon>
-      {{ duplicateError }}
+      {{ serverError || duplicateError }}
     </div>
   }
   <form [formGroup]="form" class="flex flex-col gap-3 py-2">
@@ -61,5 +61,5 @@
 
 <mat-dialog-actions align="end" class="gap-2">
   <button mat-stroked-button (click)="cancel()">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="confirm()">Crear</button>
+  <button mat-flat-button color="primary" (click)="confirm()" [disabled]="saving">{{ saving ? 'Guardando...' : 'Crear' }}</button>
 </mat-dialog-actions>

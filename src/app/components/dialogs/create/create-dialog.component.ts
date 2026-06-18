@@ -1,7 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
+import { ApiService } from 'src/app/services/api.service';
 import { EditField } from '../edit/edit-dialog.component';
 
 export interface CreateDialogData {
@@ -9,6 +11,7 @@ export interface CreateDialogData {
   fields: EditField[];
   existingData?: any[];
   uniqueKeys?: { key: string; label: string }[];
+  endpoint?: string;
 }
 
 @Component({
@@ -20,17 +23,21 @@ export interface CreateDialogData {
 export class CreateDialogComponent {
   dialogData = inject<CreateDialogData>(MAT_DIALOG_DATA);
   dialogRef  = inject(MatDialogRef<CreateDialogComponent>);
+  private apiService = inject(ApiService);
+  private snackBar = inject(MatSnackBar);
 
   form: FormGroup;
   imagePreviews: Record<string, string> = {};
   duplicateError: string | null = null;
+  serverError: string | null = null;
+  saving = false;
 
   constructor() {
     const controls: Record<string, FormControl> = {};
     for (const field of this.dialogData.fields) {
       const validators = [];
       if (field.type === 'email') validators.push(Validators.email);
-      if (field.required !== false && field.type !== 'boolean') validators.push(Validators.required);
+      if (field.required !== false && field.type !== 'boolean' && field.type !== 'image') validators.push(Validators.required);
       controls[field.key] = new FormControl(
         field.type === 'boolean' ? false : '',
         validators,
@@ -53,6 +60,7 @@ export class CreateDialogComponent {
 
   confirm(): void {
     this.duplicateError = null;
+    this.serverError = null;
     this.form.markAllAsTouched();
 
     if (this.form.invalid) return;
@@ -72,7 +80,21 @@ export class CreateDialogComponent {
       }
     }
 
-    this.dialogRef.close(this.toTypedPayload(this.form.value));
+    if (this.dialogData.endpoint) {
+      this.saving = true;
+      this.apiService.post(this.dialogData.endpoint, this.toTypedPayload(this.form.value)).subscribe({
+        next: () => {
+          this.snackBar.open('Creado exitosamente', 'Cerrar', { duration: 3000 });
+          this.dialogRef.close(true);
+        },
+        error: (err) => {
+          this.saving = false;
+          this.serverError = err.error?.message || 'Error al crear. Intenta de nuevo.';
+        },
+      });
+    } else {
+      this.dialogRef.close(this.toTypedPayload(this.form.value));
+    }
   }
 
   private toTypedPayload(raw: Record<string, any>): Record<string, any> {

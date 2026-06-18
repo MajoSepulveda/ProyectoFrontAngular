@@ -44,9 +44,9 @@ export class CitizenComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
-      data: { title: 'Crear Ciudadano', fields: this.editFields },
+      data: { title: 'Crear Ciudadano', fields: this.editFields, endpoint: '/citizens' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/citizens', result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 
@@ -56,9 +56,9 @@ export class CitizenComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Ciudadano', data: item, fields: this.editFields },
+      data: { title: 'Editar Ciudadano', data: item, fields: this.editFields, endpoint: '/citizens', idKey: 'id_citizen' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.put(`/citizens/${item.id_citizen}`, result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 

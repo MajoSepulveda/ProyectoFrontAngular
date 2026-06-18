@@ -54,6 +54,7 @@ export class EntityComponent implements OnInit {
       data: {
         title: 'Crear Entidad',
         fields: this.editFields,
+        endpoint: '/entities',
         existingData: this.data,
         uniqueKeys: [
           { key: 'name', label: 'nombre' },
@@ -61,7 +62,7 @@ export class EntityComponent implements OnInit {
         ],
       },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/entities', result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 
@@ -71,9 +72,9 @@ export class EntityComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Entidad', data: item, fields: this.editFields },
+      data: { title: 'Editar Entidad', data: item, fields: this.editFields, endpoint: '/entities', idKey: 'id_entity' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.put(`/entities/${item.id_entity}`, result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 

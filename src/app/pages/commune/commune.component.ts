@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
 import { ApiService } from 'src/app/services/api.service';
 import { DataTableComponent, TableColumn } from 'src/app/components/table-list/table-list.component';
@@ -17,8 +16,6 @@ import { CreateDialogComponent } from 'src/app/components/dialogs/create/create-
 export class CommuneComponent implements OnInit {
   private api      = inject(ApiService);
   private dialog   = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-
   data: any[] = [];
 
   columns: TableColumn[] = [
@@ -47,12 +44,9 @@ export class CommuneComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
-      data: { title: 'Crear Comuna', fields: this.editFields },
+      data: { title: 'Crear Comuna', fields: this.editFields, endpoint: '/communes' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/communes', result).subscribe({
-          next: () => this.ngOnInit(),
-          error: () => this.snackBar.open('Ya existe una comuna con ese nombre en esta ciudad', 'Cerrar', { duration: 4000 }),
-        });
+      if (result) this.ngOnInit();
     });
   }
 
@@ -62,9 +56,9 @@ export class CommuneComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Comuna', data: item, fields: this.editFields },
+      data: { title: 'Editar Comuna', data: item, fields: this.editFields, endpoint: '/communes', idKey: 'id_commune' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.put(`/communes/${item.id_commune}`, result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 

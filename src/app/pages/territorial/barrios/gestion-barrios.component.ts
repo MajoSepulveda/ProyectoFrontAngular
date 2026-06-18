@@ -59,9 +59,9 @@ export class GestionBarriosComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
-      data: { title: 'Crear Barrio', fields: this.editFields },
+      data: { title: 'Crear Barrio', fields: this.editFields, endpoint: '/neighborhoods' },
     }).afterClosed().subscribe(result => {
-      if (result) this.neighborhoodService.create(result).subscribe(() => this.loadBarrios());
+      if (result) this.loadBarrios();
     });
   }
 
@@ -71,9 +71,9 @@ export class GestionBarriosComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Barrio', data: item, fields: this.editFields },
+      data: { title: 'Editar Barrio', data: item, fields: this.editFields, endpoint: '/neighborhoods', idKey: 'id_neighborhood' },
     }).afterClosed().subscribe(result => {
-      if (result) this.neighborhoodService.update(item.id_neighborhood, result).subscribe(() => this.loadBarrios());
+      if (result) this.loadBarrios();
     });
   }
 

@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
 import { CommuneService } from 'src/app/services/commune.service';
 import { NeighborhoodService } from 'src/app/services/neighborhood.service';
@@ -21,7 +20,6 @@ export class GestionComunasComponent implements OnInit {
   private neighborhoodService = inject(NeighborhoodService);
   private colombiaApi = inject(ColombiaApiService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
 
   data: any[] = [];
 
@@ -58,17 +56,9 @@ export class GestionComunasComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(ComunaDialogComponent, {
-      data: { title: 'Crear Comuna', fields: this.dialogFields } as ComunaDialogData,
+      data: { title: 'Crear Comuna', fields: this.dialogFields, endpoint: '/communes' } as ComunaDialogData,
     }).afterClosed().subscribe(result => {
-      if (!result) return;
-      const payload = { id_city: result.id_city, name: result.name.trim(), status: result.status };
-      this.communeService.create(payload).subscribe({
-        next: () => {
-          this.snackBar.open('Comuna creada exitosamente', 'Cerrar', { duration: 3000 });
-          this.loadComunas();
-        },
-        error: (err) => this.handleSaveError(err),
-      });
+      if (result) this.loadComunas();
     });
   }
 
@@ -78,17 +68,9 @@ export class GestionComunasComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(ComunaDialogComponent, {
-      data: { title: 'Editar Comuna', data: item, fields: this.dialogFields } as ComunaDialogData,
+      data: { title: 'Editar Comuna', data: item, fields: this.dialogFields, endpoint: '/communes', idKey: 'id_commune' } as ComunaDialogData,
     }).afterClosed().subscribe(result => {
-      if (!result) return;
-      const payload = { id_city: result.id_city, name: result.name.trim(), status: result.status };
-      this.communeService.update(item.id_commune, payload).subscribe({
-        next: () => {
-          this.snackBar.open('Comuna actualizada exitosamente', 'Cerrar', { duration: 3000 });
-          this.loadComunas();
-        },
-        error: (err) => this.handleSaveError(err),
-      });
+      if (result) this.loadComunas();
     });
   }
 
@@ -101,15 +83,7 @@ export class GestionComunasComponent implements OnInit {
         this.dialog.open(DeleteDialogComponent, {
           data: { itemName: item.name },
         }).afterClosed().subscribe(ok => {
-          if (ok) {
-            this.communeService.delete(item.id_commune).subscribe({
-              next: () => {
-                this.snackBar.open('Comuna eliminada exitosamente', 'Cerrar', { duration: 3000 });
-                this.loadComunas();
-              },
-              error: (err) => this.handleSaveError(err),
-            });
-          }
+          if (ok) this.communeService.delete(item.id_commune).subscribe(() => this.loadComunas());
         });
       }
     });
@@ -118,10 +92,5 @@ export class GestionComunasComponent implements OnInit {
   closeDependentDialog(): void {
     this.showDependentDialog = false;
     this.dependentBarrios = [];
-  }
-
-  private handleSaveError(err: any): void {
-    const msg = err.error?.message || err.message || 'Error al guardar la comuna';
-    this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
   }
 }

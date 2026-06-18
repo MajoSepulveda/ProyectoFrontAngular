@@ -1,8 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
+import { ApiService } from 'src/app/services/api.service';
 import { ColombiaApiService } from 'src/app/services/colombia-api.service';
 import { Department } from 'src/app/models/Department';
 import { City } from 'src/app/models/City';
@@ -16,6 +18,8 @@ export interface ComunaDialogData {
     type: 'text' | 'select';
     options?: { value: string | number; label: string }[];
   }[];
+  endpoint?: string;
+  idKey?: string;
 }
 
 @Component({
@@ -27,6 +31,13 @@ export interface ComunaDialogData {
 
     <mat-dialog-content style="width:520px">
       <form [formGroup]="form" class="flex flex-col gap-3 py-2">
+
+        @if (serverError) {
+          <div class="flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 rounded px-3 py-2 text-sm">
+            <mat-icon style="font-size:18px;width:18px;height:18px;line-height:18px;">error_outline</mat-icon>
+            {{ serverError }}
+          </div>
+        }
 
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Departamento</mat-label>
@@ -76,7 +87,7 @@ export interface ComunaDialogData {
 
     <mat-dialog-actions align="end" class="gap-2">
       <button mat-stroked-button (click)="cancel()">Cancelar</button>
-      <button mat-flat-button color="primary" (click)="confirm()">Guardar</button>
+      <button mat-flat-button color="primary" (click)="confirm()" [disabled]="saving">{{ saving ? 'Guardando...' : 'Guardar' }}</button>
     </mat-dialog-actions>
   `,
 })
@@ -84,11 +95,15 @@ export class ComunaDialogComponent implements OnInit {
   dialogData = inject<ComunaDialogData>(MAT_DIALOG_DATA);
   dialogRef = inject(MatDialogRef<ComunaDialogComponent>);
   private colombiaApi = inject(ColombiaApiService);
+  private apiService = inject(ApiService);
+  private snackBar = inject(MatSnackBar);
 
   departments: Department[] = [];
   cities: City[] = [];
 
   form: FormGroup;
+  serverError: string | null = null;
+  saving = false;
   private isEdit: boolean;
 
   constructor() {
@@ -126,14 +141,42 @@ export class ComunaDialogComponent implements OnInit {
   }
 
   confirm(): void {
+    this.serverError = null;
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+
     const raw = this.form.getRawValue();
-    this.dialogRef.close({
-      id_city: raw.id_city,
-      name: raw.name.trim(),
-      status: raw.status,
-    });
+    const payload = { id_city: raw.id_city, name: raw.name.trim(), status: raw.status };
+
+    if (this.dialogData.endpoint) {
+      if (this.isEdit && this.dialogData.idKey) {
+        this.saving = true;
+        this.apiService.put(`${this.dialogData.endpoint}/${this.dialogData.data[this.dialogData.idKey]}`, payload).subscribe({
+          next: () => {
+            this.snackBar.open('Comuna actualizada exitosamente', 'Cerrar', { duration: 3000 });
+            this.dialogRef.close(true);
+          },
+          error: (err) => {
+            this.saving = false;
+            this.serverError = err.error?.message || 'Error al actualizar. Intenta de nuevo.';
+          },
+        });
+      } else {
+        this.saving = true;
+        this.apiService.post(this.dialogData.endpoint, payload).subscribe({
+          next: () => {
+            this.snackBar.open('Comuna creada exitosamente', 'Cerrar', { duration: 3000 });
+            this.dialogRef.close(true);
+          },
+          error: (err) => {
+            this.saving = false;
+            this.serverError = err.error?.message || 'Error al crear. Intenta de nuevo.';
+          },
+        });
+      }
+    } else {
+      this.dialogRef.close(payload);
+    }
   }
 
   cancel(): void {

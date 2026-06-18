@@ -25,26 +25,22 @@ export class OfficialComponent implements OnInit {
     { field: 'email',       header: 'Correo' },
     { field: 'phone',       header: 'Teléfono' },
     { field: 'role',        header: 'Rol' },
-    { field: 'id_entity',   header: 'ID Entidad' },
+    { field: 'id_entity', header: 'ID Entidad' },
     { field: 'status',      header: 'Estado' },
-    { field: 'gps_active',      header: 'GPS' },
-    { field: 'last_latitude',   header: 'Latitud' },
-    { field: 'last_longitude',  header: 'Longitud' },
+    { field: 'gps_active',  header: 'GPS' },
   ];
 
   editFields: EditField[] = [
     { key: 'name',              label: 'Nombre',             type: 'text' },
     { key: 'email',             label: 'Correo',             type: 'email' },
-    { key: 'phone',             label: 'Teléfono',           type: 'text', required: false },
+    { key: 'phone',             label: 'Teléfono',           type: 'text' },
     { key: 'role',              label: 'Rol',                type: 'text' },
     { key: 'status',            label: 'Estado',             type: 'select', options: [
       { value: 'activo',      label: 'Activo' },
       { value: 'desactivado', label: 'Desactivado' },
     ]},
-    { key: 'id_entity',  label: 'ID Entidad', type: 'number' },
-    { key: 'gps_active',     label: 'GPS Activo',  type: 'boolean' },
-    { key: 'last_latitude',  label: 'Latitud',     type: 'number', required: false },
-    { key: 'last_longitude', label: 'Longitud',    type: 'number', required: false },
+    { key: 'id_entity',  label: 'Entidad', type: 'select', options: [] },
+    { key: 'gps_active', label: 'GPS Activo', type: 'boolean' },
   ];
 
   ngOnInit(): void {
@@ -57,9 +53,9 @@ export class OfficialComponent implements OnInit {
 
   onCreate(): void {
     this.dialog.open(CreateDialogComponent, {
-      data: { title: 'Crear Funcionario', fields: this.editFields },
+      data: { title: 'Crear Funcionario', fields: this.editFields, endpoint: '/officials' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.post('/officials', result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 
@@ -69,9 +65,9 @@ export class OfficialComponent implements OnInit {
 
   onEdit(item: any): void {
     this.dialog.open(EditDialogComponent, {
-      data: { title: 'Editar Funcionario', data: item, fields: this.editFields },
+      data: { title: 'Editar Funcionario', data: item, fields: this.editFields, endpoint: '/officials', idKey: 'id_official' },
     }).afterClosed().subscribe(result => {
-      if (result) this.api.put(`/officials/${item.id_official}`, result).subscribe(() => this.ngOnInit());
+      if (result) this.ngOnInit();
     });
   }
 
