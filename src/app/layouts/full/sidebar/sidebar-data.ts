@@ -2,7 +2,7 @@ import { NavItem } from './nav-item/nav-item';
 
 export const navItems: NavItem[] = [
   {
-    navCap: 'Home',
+    navCap: 'Inicio',
   },
   {
     displayName: 'Dashboard',
@@ -10,52 +10,69 @@ export const navItems: NavItem[] = [
     route: '/dashboard',
   },
   {
-    displayName: 'Reports',
+    displayName: 'Reportes',
     iconName: 'solar:chart-square-line-duotone',
-    route: '/reports',
+    route: '/dashboard/reports',
   },
-
+  {
+    displayName: 'Seguimiento',
+    iconName: 'solar:chart-square-line-duotone',
+    route: '/tracking',
+  },
   {
     navCap: 'Gestión',
   },
   {
-    displayName: 'Category',
+    displayName: 'Categorías',
     iconName: 'solar:tag-line-duotone',
     route: '/dashboard/category',
   },
   {
-    displayName: 'Citizen',
+    displayName: 'Ciudadanos',
     iconName: 'solar:user-line-duotone',
     route: '/dashboard/citizen',
   },
   {
-    displayName: 'City',
+    displayName: 'Ciudades',
     iconName: 'solar:city-line-duotone',
     route: '/dashboard/city',
   },
   {
-    displayName: 'Commune',
-    iconName: 'solar:map-point-line-duotone',
-    route: '/dashboard/commune',
-  },
-  {
-    displayName: 'Department',
+    displayName: 'Departamentos',
     iconName: 'solar:buildings-line-duotone',
     route: '/dashboard/department',
   },
   {
-    displayName: 'Entity',
-    iconName: 'solar:case-round-line-duotone',
-    route: '/dashboard/entity',
+    displayName: 'Comunas',
+    iconName: 'solar:city-line-duotone',
+    route: '/territorial/comunas',
   },
   {
-    displayName: 'Neighborhood',
-    iconName: 'solar:home-smile-line-duotone',
-    route: '/dashboard/neighborhood',
+    displayName: 'Barrios',
+    iconName: 'solar:map-point-wave-line-duotone',
+    route: '/territorial/barrios',
+  },
+  {
+    displayName: 'Entidades',
+    iconName: 'solar:case-round-line-duotone',
+    route: '/dashboard/entity',
   },
   {
     displayName: 'Official',
     iconName: 'solar:user-id-line-duotone',
     route: '/dashboard/official',
   },
+  {
+    navCap: 'Territorial',
+  },
+  {
+    displayName: 'Demarcación Mapa',
+    iconName: 'solar:map-line-duotone',
+    route: '/territorial/mapa',
+  },
+  {
+    displayName: 'Anotaciones',
+    iconName: 'solar:notes-line-duotone',
+    route: '/annotations',
+  }
 ];

@@ -1,0 +1,47 @@
+<div class="tree-filter">
+  <div class="filter-header">
+    <ng-content select="[slot=title]"></ng-content>
+    <button mat-stroked-button (click)="clearFilters()" *ngIf="nodes.length > 0">
+      {{ clearButtonLabel }}
+    </button>
+  </div>
+
+  <div class="sidebar-state" *ngIf="loading">
+    <mat-spinner diameter="28"></mat-spinner>
+    <span>{{ loadingMessage }}</span>
+  </div>
+
+  <div class="sidebar-state" *ngIf="!loading && nodes.length === 0">
+    <mat-icon>category</mat-icon>
+    <span>{{ emptyMessage }}</span>
+  </div>
+
+  <div class="tree-container" *ngIf="!loading && nodes.length > 0">
+    <div
+      *ngFor="let flat of visibleNodes"
+      class="tree-node"
+      [class.node-selected]="flat.node.selected"
+      [style.padding-left.px]="flat.depth * 20 + 8"
+    >
+      <button
+        mat-icon-button
+        class="expand-btn"
+        (click)="toggleNode(flat.node)"
+        *ngIf="flat.node.children.length > 0"
+      >
+        <mat-icon>
+          {{ flat.node.expanded ? 'expand_more' : 'chevron_right' }}
+        </mat-icon>
+      </button>
+      <span class="leaf-spacer" *ngIf="flat.node.children.length === 0"></span>
+
+      <mat-checkbox
+        [checked]="flat.node.selected"
+        (change)="onCheckboxChange(flat.node)"
+      >
+        {{ flat.node.data[labelKey] }}
+        <span class="count-badge" *ngIf="showCounts">{{ flat.node.totalCount }}</span>
+      </mat-checkbox>
+    </div>
+  </div>
+</div>

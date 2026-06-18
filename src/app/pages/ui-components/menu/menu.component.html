@@ -1,21 +1,21 @@
 <mat-card class="cardWithShadow theme-card">
   <div class="p-6">
-    <mat-card-title class="mb-0">Menu</mat-card-title>
+    <mat-card-title class="mb-0">Menú</mat-card-title>
   </div>
   <mat-card-content class="border-t border-border">
     <div class="grid grid-cols-12 gap-6">
       <div class="col-span-12 sm:col-span-6 lg:col-span-4">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Basic</mat-card-title>
+            <mat-card-title>Básico</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <button mat-flat-button color="primary" class="mt-2" [matMenuTriggerFor]="menu">
-              Menu
+              Menú
             </button>
             <mat-menu #menu="matMenu" class="cardWithShadow">
-              <button mat-menu-item>Item 1</button>
-              <button mat-menu-item>Item 2</button>
+              <button mat-menu-item>Elemento 1</button>
+              <button mat-menu-item>Elemento 2</button>
             </mat-menu>
           </mat-card-content>
         </mat-card>
@@ -23,10 +23,10 @@
       <div class="col-span-12 sm:col-span-6 lg:col-span-4">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>with Icons</mat-card-title>
+            <mat-card-title>con Iconos</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Botón de ejemplo con menú">
               <mat-icon>
                 <i-tabler name="dots"></i-tabler>
               </mat-icon>
@@ -34,15 +34,15 @@
             <mat-menu #menu="matMenu" class="cardWithShadow">
               <button mat-menu-item>
                 <mat-icon>dialpad</mat-icon>
-                <span>Redial</span>
+                <span>Remarcar</span>
               </button>
               <button mat-menu-item disabled>
                 <mat-icon>voicemail</mat-icon>
-                <span>Check voice mail</span>
+                <span>Revisar buzón de voz</span>
               </button>
               <button mat-menu-item>
                 <mat-icon>notifications_off</mat-icon>
-                <span>Disable alerts</span>
+                <span>Deshabilitar alertas</span>
               </button>
             </mat-menu>
           </mat-card-content>
@@ -51,41 +51,41 @@
       <div class="col-span-12 sm:col-span-6 lg:col-span-4">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Nested Menu</mat-card-title>
+            <mat-card-title>Menú Anidado</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <button mat-flat-button color="primary" [matMenuTriggerFor]="animals" class="mt-2">
-              Animal index
+              Índice de animales
             </button>
             <mat-menu class="cardWithShadow" #animals="matMenu">
               <button mat-menu-item [matMenuTriggerFor]="vertebrates">
-                Vertebrates
+                Vertebrados
               </button>
               <button mat-menu-item [matMenuTriggerFor]="invertebrates">
-                Invertebrates
+                Invertebrados
               </button>
             </mat-menu>
 
             <mat-menu class="cardWithShadow" #vertebrates="matMenu">
-              <button mat-menu-item [matMenuTriggerFor]="fish">Fishes</button>
+              <button mat-menu-item [matMenuTriggerFor]="fish">Peces</button>
               <button mat-menu-item [matMenuTriggerFor]="amphibians">
-                Amphibians
+                Anfibios
               </button>
               <button mat-menu-item [matMenuTriggerFor]="reptiles">
                 Reptiles
               </button>
-              <button mat-menu-item>Birds</button>
-              <button mat-menu-item>Mammals</button>
+              <button mat-menu-item>Aves</button>
+              <button mat-menu-item>Mamíferos</button>
             </mat-menu>
 
             <mat-menu class="cardWithShadow" #invertebrates="matMenu">
-              <button mat-menu-item>Insects</button>
-              <button mat-menu-item>Molluscs</button>
-              <button mat-menu-item>Crustaceans</button>
-              <button mat-menu-item>Corals</button>
-              <button mat-menu-item>Arachnids</button>
-              <button mat-menu-item>Velvet worms</button>
-              <button mat-menu-item>Horseshoe crabs</button>
+              <button mat-menu-item>Insectos</button>
+              <button mat-menu-item>Moluscos</button>
+              <button mat-menu-item>Crustáceos</button>
+              <button mat-menu-item>Corales</button>
+              <button mat-menu-item>Arácnidos</button>
+              <button mat-menu-item>Gusanos de terciopelo</button>
+              <button mat-menu-item>Cangrejos herradura</button>
             </mat-menu>
 
             <mat-menu class="cardWithShadow" #fish="matMenu">
@@ -117,44 +117,44 @@
       <div class="col-span-12">
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Positions</mat-card-title>
+            <mat-card-title>Posiciones</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <div class="grid grid-cols-12 gap-y-4 gap-6">
               <div class="col-span-12 sm:col-span-3">
                 <button mat-flat-button color="primary" class="w-full" [matMenuTriggerFor]="aboveMenu">
-                  Above
+                  Arriba
                 </button>
                 <mat-menu class="cardWithShadow" #aboveMenu="matMenu" yPosition="above">
-                  <button mat-menu-item>Item 1</button>
-                  <button mat-menu-item>Item 2</button>
+                  <button mat-menu-item>Elemento 1</button>
+                  <button mat-menu-item>Elemento 2</button>
                 </mat-menu>
               </div>
               <div class="col-span-12 sm:col-span-3">
                 <button mat-flat-button color="accent" class="w-full" [matMenuTriggerFor]="belowMenu">
-                  Below
+                  Abajo
                 </button>
                 <mat-menu class="cardWithShadow" #belowMenu="matMenu" yPosition="below">
-                  <button mat-menu-item>Item 1</button>
-                  <button mat-menu-item>Item 2</button>
+                  <button mat-menu-item>Elemento 1</button>
+                  <button mat-menu-item>Elemento 2</button>
                 </mat-menu>
               </div>
               <div class="col-span-12 sm:col-span-3">
                 <button mat-flat-button color="warn" class="w-full" [matMenuTriggerFor]="beforeMenu">
-                  Before
+                  Antes
                 </button>
                 <mat-menu class="cardWithShadow" #beforeMenu="matMenu" xPosition="before">
-                  <button mat-menu-item>Item 1</button>
-                  <button mat-menu-item>Item 2</button>
+                  <button mat-menu-item>Elemento 1</button>
+                  <button mat-menu-item>Elemento 2</button>
                 </mat-menu>
               </div>
               <div class="col-span-12 sm:col-span-3">
                 <button mat-flat-button color="primary" class="w-full" [matMenuTriggerFor]="afterMenu">
-                  After
+                  Después
                 </button>
                 <mat-menu class="cardWithShadow" #afterMenu="matMenu" xPosition="after">
-                  <button mat-menu-item>Item 1</button>
-                  <button mat-menu-item>Item 2</button>
+                  <button mat-menu-item>Elemento 1</button>
+                  <button mat-menu-item>Elemento 2</button>
                 </mat-menu>
               </div>
             </div>

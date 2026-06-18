@@ -1,0 +1,112 @@
+.citizen-banner {
+  padding: 0.5rem 1rem;
+  background: #e3f2fd;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.error-banner {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.annotation-list {
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &.selected {
+      background: #bbdefb;
+      border-color: #1976d2;
+    }
+
+    &.voted {
+      opacity: 0.7;
+      border-left: 3px solid #388e3c;
+    }
+  }
+
+  .voted-badge {
+    font-size: 0.8rem;
+    color: #388e3c;
+    font-weight: 600;
+    margin-left: auto;
+    padding-left: 0.5rem;
+  }
+
+  .category {
+    font-size: 0.85rem;
+    color: #757575;
+    margin-right: 0.5rem;
+  }
+}
+
+.vote-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.already-voted {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #bdbdbd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: inherit;
+  }
+}
+
+.form-error {
+  color: #d32f2f;
+  font-size: 0.9rem;
+}
+
+button {
+  padding: 0.5rem 1.5rem;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

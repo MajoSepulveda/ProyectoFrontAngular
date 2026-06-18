@@ -1,0 +1,104 @@
+<div class="advanced-filter-layout">
+  <!-- ─── LEFT PANEL: FILTERS SIDEBAR ────────────── -->
+  <aside class="filters-sidebar">
+    <mat-accordion multi>
+      <!-- Categories filter -->
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>Categorías</mat-panel-title>
+        </mat-expansion-panel-header>
+        <app-tree-filter
+          [nodes]="categoryFilterService.tree"
+          [loading]="categoryFilterService.loading"
+          labelKey="name"
+          [showCounts]="true"
+          emptyMessage="No hay categorías disponibles"
+          loadingMessage="Cargando categorías…"
+          (filterChange)="onFilterChange()"
+        />
+      </mat-expansion-panel>
+
+      <!-- Location filter -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>Ubicación</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="location-selectors">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Departamento</mat-label>
+            <mat-select (selectionChange)="onDepartmentChange($event.value)">
+              <mat-option
+                *ngFor="let d of locationFilterService.departments"
+                [value]="d.id_department"
+              >
+                {{ d.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            *ngIf="locationFilterService.selectedDepartmentId != null"
+          >
+            <mat-label>Ciudad</mat-label>
+            <mat-select (selectionChange)="onCityChange($event.value)">
+              <mat-option
+                *ngFor="let c of locationFilterService.cities"
+                [value]="c.id_city"
+              >
+                {{ c.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <app-tree-filter
+          *ngIf="locationFilterService.locationTree.length > 0"
+          [nodes]="locationFilterService.locationTree"
+          [loading]="false"
+          labelKey="name"
+          [showCounts]="false"
+          emptyMessage="Selecciona una ciudad para ver barrios"
+          (filterChange)="onFilterChange()"
+        />
+      </mat-expansion-panel>
+    </mat-accordion>
+  </aside>
+
+  <!-- ─── RIGHT PANEL: MAP ─────────────────────────── -->
+  <main class="map-panel">
+    <div class="panel-state" *ngIf="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Cargando datos…</span>
+    </div>
+
+    <div class="map-wrapper" [hidden]="loading">
+      <div class="map-info-bar">
+        <span *ngIf="allAnnotations.length === 0">
+          <mat-icon class="info-icon">info</mat-icon> No hay anotaciones en el sistema
+        </span>
+        <span *ngIf="allAnnotations.length > 0 && filteredAnnotations.length === 0">
+          <mat-icon class="info-icon">filter_alt_off</mat-icon> Sin resultados — ajusta tus filtros
+        </span>
+        <span *ngIf="filteredAnnotations.length > 0">
+          <mat-icon class="info-icon">place</mat-icon>
+          {{ filteredAnnotations.length }} anotacion{{ filteredAnnotations.length !== 1 ? 'es' : '' }} en el mapa
+        </span>
+      </div>
+
+      <div #mapContainer class="map-container"></div>
+
+      <button
+        class="fab-create"
+        mat-fab
+        [color]="placementMode ? 'accent' : 'primary'"
+        (click)="togglePlacementMode()"
+        [matTooltip]="placementMode ? 'Cancelar colocación' : 'Crear anotación'"
+      >
+        <mat-icon>{{ placementMode ? 'close' : 'add' }}</mat-icon>
+      </button>
+    </div>
+  </main>
+</div>

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Neighborhood } from '../models/Neighborhood';
 import { ApiService } from './api.service';
@@ -16,15 +15,19 @@ export class NeighborhoodService {
     return this.apiService.get<Neighborhood[]>(this.endpoint);
   }
 
+  getByCommune(communeId: number): Observable<Neighborhood[]> {
+    return this.apiService.get<Neighborhood[]>(`${this.endpoint}/search`, { id_commune: communeId });
+  }
+
   getById(id: number): Observable<Neighborhood> {
     return this.apiService.get<Neighborhood>(`${this.endpoint}/${id}`);
   }
 
-  create(neighborhood: Neighborhood): Observable<Neighborhood> {
+  create(neighborhood: Partial<Neighborhood>): Observable<Neighborhood> {
     return this.apiService.post<Neighborhood>(this.endpoint, neighborhood);
   }
 
-  update(id: number, neighborhood: Neighborhood): Observable<Neighborhood> {
+  update(id: number, neighborhood: Partial<Neighborhood>): Observable<Neighborhood> {
     return this.apiService.put<Neighborhood>(`${this.endpoint}/${id}`, neighborhood);
   }
 

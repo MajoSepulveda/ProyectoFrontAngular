@@ -1,6 +1,6 @@
 <mat-card class="cardWithShadow theme-card">
   <div class="p-6">
-    <mat-card-title class="mb-0">Lists</mat-card-title>
+    <mat-card-title class="mb-0">Listas</mat-card-title>
   </div>
   <mat-card-content class="border-t border-border">
     <div class="grid grid-cols-12 gap-6">
@@ -10,13 +10,13 @@
         <!-- --------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Basic</mat-card-title>
+            <mat-card-title>Básico</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-list role="list">
-              <mat-list-item role="listitem">Item 1</mat-list-item>
-              <mat-list-item role="listitem">Item 2</mat-list-item>
-              <mat-list-item role="listitem">Item 3</mat-list-item>
+              <mat-list-item role="listitem">Elemento 1</mat-list-item>
+              <mat-list-item role="listitem">Elemento 2</mat-list-item>
+              <mat-list-item role="listitem">Elemento 3</mat-list-item>
             </mat-list>
           </mat-card-content>
         </mat-card>
@@ -28,17 +28,17 @@
         <!-- --------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Two Line</mat-card-title>
+            <mat-card-title>Dos Líneas</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-list>
               <mat-list-item>
-                <span matListItemTitle class="text-base font-semibold">Title</span>
-                <span matListItemLine>Second line</span>
+                <span matListItemTitle class="text-base font-semibold">Título</span>
+                <span matListItemLine>Segunda línea</span>
               </mat-list-item>
               <mat-list-item>
-                <span matListItemTitle class="text-base font-semibold">Title</span>
-                <span matListItemLine>Second line</span>
+                <span matListItemTitle class="text-base font-semibold">Título</span>
+                <span matListItemLine>Segunda línea</span>
               </mat-list-item>
             </mat-list>
           </mat-card-content>
@@ -51,19 +51,19 @@
         <!-- --------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Three Line</mat-card-title>
+            <mat-card-title>Tres Líneas</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-list>
               <mat-list-item>
-                <span matListItemTitle class="text-base font-semibold">Title</span>
-                <span matListItemLine>Second line</span>
-                <span matListItemLine>Third line</span>
+                <span matListItemTitle class="text-base font-semibold">Título</span>
+                <span matListItemLine>Segunda línea</span>
+                <span matListItemLine>Tercera línea</span>
               </mat-list-item>
               <mat-list-item>
-                <span matListItemTitle class="text-base font-semibold">Title</span>
-                <span matListItemLine>Second line. This line will truncate.</span>
-                <span>Third line</span>
+                <span matListItemTitle class="text-base font-semibold">Título</span>
+                <span matListItemLine>Segunda línea. Esta línea se truncará.</span>
+                <span>Tercera línea</span>
               </mat-list-item>
             </mat-list>
           </mat-card-content>
@@ -76,22 +76,22 @@
         <!-- --------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>Three Line with Text wrapping</mat-card-title>
+            <mat-card-title>Tres Líneas con ajuste de texto</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-list style="max-width: 500px">
               <mat-list-item lines="3">
-                <span matListItemTitle class="text-base font-semibold">Title</span>
-                <span>Secondary line that will wrap because the list lines is
-                  explicitly set to 3 lines. Text inside of a `matListItemTitle`
-                  or `matListItemLine` will never wrap.
+                <span matListItemTitle class="text-base font-semibold">Título</span>
+                <span>Línea secundaria que se ajustará porque la lista tiene
+                  explícitamente 3 líneas. El texto dentro de `matListItemTitle`
+                  o `matListItemLine` nunca se ajustará.
                 </span>
               </mat-list-item>
               <mat-list-item lines="3">
-                <span matListItemTitle class="text-base font-semibold">Title</span>
-                <span>Secondary line that will wrap because the list lines is
-                  explicitly set to 3 lines. Text inside of a `matListItemTitle`
-                  or `matListItemLine` will never wrap.
+                <span matListItemTitle class="text-base font-semibold">Título</span>
+                <span>Línea secundaria que se ajustará porque la lista tiene
+                  explícitamente 3 líneas. El texto dentro de `matListItemTitle`
+                  o `matListItemLine` nunca se ajustará.
                 </span>
               </mat-list-item>
             </mat-list>
@@ -105,7 +105,7 @@
         <!-- --------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>List with Selection</mat-card-title>
+            <mat-card-title>Lista con Selección</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-selection-list #shoes>
@@ -117,7 +117,7 @@
             </mat-selection-list>
 
             <p class="font-semibold p-4 bg-light-primary rounded">
-              Options selected: {{ shoes.selectedOptions.selected.length }}
+              Opciones seleccionadas: {{ shoes.selectedOptions.selected.length }}
             </p>
           </mat-card-content>
         </mat-card>
@@ -129,7 +129,7 @@
         <!-- --------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>List with single Selection</mat-card-title>
+            <mat-card-title>Lista con selección única</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-selection-list #shoes2 [multiple]="false">
@@ -141,11 +141,11 @@
             </mat-selection-list>
 
             <p class="font-semibold p-4 bg-light-primary rounded">
-              Option selected:
+              Opción seleccionada:
               {{
               shoes2.selectedOptions.hasValue()
               ? shoes2.selectedOptions.selected[0].value
-              : "None"
+              : "Ninguna"
               }}
             </p>
           </mat-card-content>
@@ -158,11 +158,11 @@
         <!-- --------------------------------------------------- -->
         <mat-card class="border! border-border! shadow-none mb-0!">
           <div class="p-4">
-            <mat-card-title>List with sections</mat-card-title>
+            <mat-card-title>Lista con secciones</mat-card-title>
           </div>
           <mat-card-content class="border-t border-border">
             <mat-list>
-              <div mat-subheader class="mb-4 font-semibold">Folders</div>
+              <div mat-subheader class="mb-4 font-semibold">Carpetas</div>
               @for(folder of folders; track folder.name) {
               <mat-list-item>
                 <mat-icon matListItemIcon>folder</mat-icon>
@@ -176,7 +176,7 @@
               }
 
               <mat-divider></mat-divider>
-              <div mat-subheader class="my-4 font-semibold">Notes</div>
+              <div mat-subheader class="my-4 font-semibold">Notas</div>
               @for(note of notes; track note.name) {
               <mat-list-item>
                 <mat-icon matListItemIcon>note</mat-icon>

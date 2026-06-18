@@ -1,0 +1,51 @@
+<!-- Active citizen indicator -->
+<section class="citizen-banner">
+  <span *ngIf="loadingCitizen">Cargando perfil...</span>
+  <span *ngIf="!loadingCitizen && activeCitizen">
+    Ciudadano activo: <strong>{{ activeCitizen.name }}</strong>
+  </span>
+</section>
+
+<!-- Loading state -->
+<p *ngIf="loading">Cargando anotación…</p>
+
+<!-- Error banner -->
+<p *ngIf="error" class="error-banner">{{ error }}</p>
+
+<!-- Vote form — visible only when an annotation is selected -->
+<section class="vote-section" *ngIf="selectedAnnotation">
+  <h3>Calificar anotación</h3>
+  <p>{{ selectedAnnotation.description }}</p>
+
+  <!-- Already-voted state -->
+  <div class="already-voted" *ngIf="hasVoted">
+    Ya has calificado esta anotación.
+  </div>
+
+  <ng-container *ngIf="!hasVoted">
+    <div class="form-group">
+      <label for="stars">Calificación (1–5 estrellas)</label>
+      <select id="stars" name="stars" [(ngModel)]="stars">
+        <option [ngValue]="0" disabled>Seleccione…</option>
+        <option *ngFor="let s of [1,2,3,4,5]" [ngValue]="s">{{ s }} estrella{{ s > 1 ? 's' : '' }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="comment">Comentario (opcional)</label>
+      <textarea
+        id="comment"
+        name="comment"
+        rows="3"
+        [(ngModel)]="comment"
+        placeholder="Escriba un comentario sobre esta anotación…"
+      ></textarea>
+    </div>
+
+    <p *ngIf="formError" class="form-error">{{ formError }}</p>
+
+    <button (click)="submitVote()" [disabled]="submitting">
+      {{ submitting ? 'Enviando…' : 'Enviar Voto' }}
+    </button>
+  </ng-container>
+</section>
