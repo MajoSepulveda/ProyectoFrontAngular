@@ -25,7 +25,7 @@ export class OfficialComponent implements OnInit {
     { field: 'email',       header: 'Correo' },
     { field: 'phone',       header: 'Teléfono' },
     { field: 'role',        header: 'Rol' },
-    { field: 'id_entity', header: 'ID Entidad' },
+    { field: 'id_entity',   header: 'ID Entidad' },
     { field: 'status',      header: 'Estado' },
     { field: 'gps_active',  header: 'GPS' },
   ];
