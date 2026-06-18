@@ -1,0 +1,37 @@
+<div class="p-6">
+  <mat-card class="cardWithShadow">
+    <mat-card-header class="mb-4 flex justify-between items-center">
+      <mat-card-title class="text-xl font-bold">Gestión de Comunas</mat-card-title>
+      <button mat-flat-button color="primary" (click)="onCreate()">
+        <mat-icon>add</mat-icon> Nueva Comuna
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <app-data-table
+        [columns]="columns"
+        [data]="data"
+        (view)="onView($event)"
+        (edit)="onEdit($event)"
+        (delete)="onDelete($event)">
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+@if (showDependentDialog) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <mat-card class="p-6 max-w-md w-full mx-4">
+      <h2 class="text-lg font-semibold mb-2 text-red-600">No se puede eliminar la comuna</h2>
+      <p class="mb-4">La comuna tiene los siguientes barrios asociados:</p>
+      <ul class="list-disc pl-5 mb-4">
+        @for (b of dependentBarrios; track b.id_neighborhood) {
+          <li>{{ b.name }}</li>
+        }
+      </ul>
+      <p class="text-sm text-gray-600">Elimine o reasigne los barrios antes de eliminar la comuna.</p>
+      <div class="flex justify-end mt-4">
+        <button mat-stroked-button (click)="closeDependentDialog()">Cerrar</button>
+      </div>
+    </mat-card>
+  </div>
+}

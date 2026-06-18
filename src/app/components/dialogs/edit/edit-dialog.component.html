@@ -15,6 +15,9 @@
               <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
             }
           </mat-select>
+          @if (form.get(field.key)?.hasError('required') && form.get(field.key)?.touched) {
+            <mat-error>{{ field.label }} es requerido</mat-error>
+          }
         </mat-form-field>
       } @else if (field.type === 'image') {
         <div class="flex flex-col gap-2">
@@ -26,7 +29,7 @@
             <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, field.key)" />
           </div>
           @if (imagePreviews[field.key]) {
-            <img [src]="imagePreviews[field.key]" class="w-24 h-24 rounded object-cover border border-gray-200" alt="preview" />
+            <img [src]="imagePreviews[field.key]" class="w-24 h-24 rounded object-cover border border-gray-200" alt="vista previa" />
           }
         </div>
       } @else {
@@ -36,7 +39,10 @@
             [formControlName]="field.key"
             [type]="field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : 'text'"
             [readonly]="field.readonly ?? false" />
-          @if (field.type === 'email' && form.get(field.key)?.hasError('email') && form.get(field.key)?.touched) {
+          @if (form.get(field.key)?.hasError('required') && form.get(field.key)?.touched) {
+            <mat-error>{{ field.label }} es requerido</mat-error>
+          }
+          @if (form.get(field.key)?.hasError('email') && form.get(field.key)?.touched) {
             <mat-error>Ingresa un correo electrónico válido</mat-error>
           }
         </mat-form-field>

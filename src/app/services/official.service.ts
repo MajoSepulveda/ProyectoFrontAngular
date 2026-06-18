@@ -8,7 +8,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class OfficialService {
-  private endpoint = '/categories';
+  private endpoint = '/officials';
 
   constructor(private apiService: ApiService) {}
 

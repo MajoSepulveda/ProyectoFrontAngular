@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environment/enviroment';
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Consulta } from '../models/consulta';
 import { ReportChartResponse } from '../models/report-chart-response';

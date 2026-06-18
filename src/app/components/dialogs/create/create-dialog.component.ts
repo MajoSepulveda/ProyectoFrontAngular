@@ -28,9 +28,12 @@ export class CreateDialogComponent {
   constructor() {
     const controls: Record<string, FormControl> = {};
     for (const field of this.dialogData.fields) {
+      const validators = [];
+      if (field.type === 'email') validators.push(Validators.email);
+      if (field.required !== false && field.type !== 'boolean') validators.push(Validators.required);
       controls[field.key] = new FormControl(
         field.type === 'boolean' ? false : '',
-        field.type === 'email' ? [Validators.email] : [],
+        validators,
       );
     }
     this.form = new FormGroup(controls);
@@ -50,6 +53,9 @@ export class CreateDialogComponent {
 
   confirm(): void {
     this.duplicateError = null;
+    this.form.markAllAsTouched();
+
+    if (this.form.invalid) return;
 
     if (this.dialogData.uniqueKeys?.length && this.dialogData.existingData?.length) {
       const values = this.form.value;

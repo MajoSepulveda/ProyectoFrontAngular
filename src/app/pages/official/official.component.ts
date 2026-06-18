@@ -27,20 +27,24 @@ export class OfficialComponent implements OnInit {
     { field: 'role',        header: 'Rol' },
     { field: 'id_entity',   header: 'ID Entidad' },
     { field: 'status',      header: 'Estado' },
-    { field: 'gps_active',  header: 'GPS' },
+    { field: 'gps_active',      header: 'GPS' },
+    { field: 'last_latitude',   header: 'Latitud' },
+    { field: 'last_longitude',  header: 'Longitud' },
   ];
 
   editFields: EditField[] = [
     { key: 'name',              label: 'Nombre',             type: 'text' },
     { key: 'email',             label: 'Correo',             type: 'email' },
-    { key: 'phone',             label: 'Teléfono',           type: 'text' },
+    { key: 'phone',             label: 'Teléfono',           type: 'text', required: false },
     { key: 'role',              label: 'Rol',                type: 'text' },
     { key: 'status',            label: 'Estado',             type: 'select', options: [
       { value: 'activo',      label: 'Activo' },
       { value: 'desactivado', label: 'Desactivado' },
     ]},
-    { key: 'id_entity',  label: 'Entidad', type: 'select', options: [] },
-    { key: 'gps_active', label: 'GPS Activo', type: 'boolean' },
+    { key: 'id_entity',  label: 'ID Entidad', type: 'number' },
+    { key: 'gps_active',     label: 'GPS Activo',  type: 'boolean' },
+    { key: 'last_latitude',  label: 'Latitud',     type: 'number', required: false },
+    { key: 'last_longitude', label: 'Longitud',    type: 'number', required: false },
   ];
 
   ngOnInit(): void {

@@ -30,12 +30,12 @@ export class CitizenComponent implements OnInit {
   editFields: EditField[] = [
     { key: 'name',      label: 'Nombre',     type: 'text' },
     { key: 'email',     label: 'Correo',     type: 'email' },
-    { key: 'phone',     label: 'Teléfono',   type: 'text' },
-    { key: 'address',   label: 'Dirección',  type: 'text' },
+    { key: 'phone',     label: 'Teléfono',   type: 'text', required: false },
+    { key: 'address',   label: 'Dirección',  type: 'text', required: false },
     { key: 'status',    label: 'Estado',     type: 'select', options: [
       { value: 'activo',      label: 'Activo' },
       { value: 'desactivado', label: 'Desactivado' },
-    ]}
+    ]},
   ];
 
   ngOnInit(): void {

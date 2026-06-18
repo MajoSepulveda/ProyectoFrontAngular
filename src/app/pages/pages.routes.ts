@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { StarterComponent } from './starter/starter.component';
+import { ReportsComponent } from './reports/reports.component';
 import { CategoryComponent } from './category/category.component';
 import { CitizenComponent } from './citizen/citizen.component';
 import { CityComponent } from './city/city.component';
@@ -9,6 +11,28 @@ import { NeighborhoodComponent } from './neighborhood/neighborhood.component';
 import { OfficialComponent } from './official/official.component';
 
 export const PagesRoutes: Routes = [
+  {
+    path: '',
+    component: StarterComponent,
+    data: {
+      title: 'Starter',
+      urls: [
+        { title: 'Dashboard', url: '/dashboard' },
+        { title: 'Starter' },
+      ],
+    },
+  },
+    {
+      path: 'reports',
+      component: ReportsComponent,
+      data: {
+        title: 'Reports',
+        urls: [
+          { title: 'Dashboard', url: '/dashboard' },
+          { title: 'Reports' },
+        ],
+      },
+    },
   { path: 'category',     component: CategoryComponent },
   { path: 'citizen',      component: CitizenComponent },
   { path: 'city',         component: CityComponent },

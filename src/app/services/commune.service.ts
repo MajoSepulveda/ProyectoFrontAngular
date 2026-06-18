@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Commune } from '../models/Commune';
 import { ApiService } from './api.service';
@@ -20,11 +19,15 @@ export class CommuneService {
     return this.apiService.get<Commune>(`${this.endpoint}/${id}`);
   }
 
-  create(commune: Commune): Observable<Commune> {
+  getByCity(cityId: number): Observable<Commune[]> {
+    return this.apiService.get<Commune[]>(`${this.endpoint}`, { id_city: cityId });
+  }
+
+  create(commune: Partial<Commune>): Observable<Commune> {
     return this.apiService.post<Commune>(this.endpoint, commune);
   }
 
-  update(id: number, commune: Commune): Observable<Commune> {
+  update(id: number, commune: Partial<Commune>): Observable<Commune> {
     return this.apiService.put<Commune>(`${this.endpoint}/${id}`, commune);
   }
 

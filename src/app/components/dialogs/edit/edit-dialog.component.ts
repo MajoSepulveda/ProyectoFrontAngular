@@ -8,6 +8,7 @@ export interface EditField {
   label: string;
   type: 'text' | 'email' | 'number' | 'boolean' | 'select' | 'image';
   readonly?: boolean;
+  required?: boolean;
   options?: { value: string | number; label: string }[];
 }
 
@@ -33,12 +34,15 @@ export class EditDialogComponent {
   constructor() {
     const controls: Record<string, FormControl> = {};
     for (const field of this.dialogData.fields) {
+      const validators = [];
+      if (field.type === 'email') validators.push(Validators.email);
+      if (field.required !== false && field.type !== 'boolean' && !field.readonly) validators.push(Validators.required);
       controls[field.key] = new FormControl(
         {
           value: this.dialogData.data[field.key] ?? (field.type === 'boolean' ? false : ''),
           disabled: field.readonly ?? false,
         },
-        field.type === 'email' ? [Validators.email] : [],
+        validators,
       );
       if (field.type === 'image' && this.dialogData.data[field.key]) {
         this.imagePreviews[field.key] = this.dialogData.data[field.key];
@@ -59,7 +63,11 @@ export class EditDialogComponent {
     reader.readAsDataURL(file);
   }
 
-  confirm(): void { this.dialogRef.close(this.toTypedPayload(this.form.getRawValue())); }
+  confirm(): void {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
+    this.dialogRef.close(this.toTypedPayload(this.form.getRawValue()));
+  }
   cancel():  void { this.dialogRef.close(null); }
 
   private toTypedPayload(raw: Record<string, any>): Record<string, any> {
