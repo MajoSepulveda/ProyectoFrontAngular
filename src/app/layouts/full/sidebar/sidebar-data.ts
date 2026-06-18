@@ -43,11 +43,6 @@ export const navItems: NavItem[] = [
     route: '/dashboard/city',
   },
   {
-    displayName: 'Comunas',
-    iconName: 'solar:map-point-line-duotone',
-    route: '/dashboard/commune',
-  },
-  {
     displayName: 'Departamentos',
     iconName: 'solar:buildings-line-duotone',
     route: '/dashboard/department',
@@ -56,11 +51,6 @@ export const navItems: NavItem[] = [
     displayName: 'Entidades',
     iconName: 'solar:case-round-line-duotone',
     route: '/dashboard/entity',
-  },
-  {
-    displayName: 'Barrios',
-    iconName: 'solar:home-smile-line-duotone',
-    route: '/dashboard/neighborhood',
   },
   {
     displayName: 'Funcionarios',

@@ -1,92 +1,37 @@
 <div class="p-6">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-semibold">Gesti&oacute;n de Comunas</h1>
-    <button mat-raised-button color="primary" (click)="openDialog()">Nueva Comuna</button>
-  </div>
-
-  <div class="overflow-x-auto">
-    <table mat-table [dataSource]="comunas" class="w-full">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Nombre</th>
-        <td mat-cell *matCellDef="let c">{{ c.name }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="id_city">
-        <th mat-header-cell *matHeaderCellDef>Ciudad ID</th>
-        <td mat-cell *matCellDef="let c">{{ c.id_city }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Estado</th>
-        <td mat-cell *matCellDef="let c">{{ c.status }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Acciones</th>
-        <td mat-cell *matCellDef="let c">
-          <button mat-icon-button color="primary" (click)="openDialog(c)" matTooltip="Editar">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="delete(c.id_commune!)" matTooltip="Eliminar">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="['name', 'id_city', 'status', 'actions']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['name', 'id_city', 'status', 'actions']"></tr>
-    </table>
-
-    <div *ngIf="comunas.length === 0" class="text-center py-8 text-gray-500">
-      No hay comunas registradas
-    </div>
-  </div>
+  <mat-card class="cardWithShadow">
+    <mat-card-header class="mb-4 flex justify-between items-center">
+      <mat-card-title class="text-xl font-bold">Gestión de Comunas</mat-card-title>
+      <button mat-flat-button color="primary" (click)="onCreate()">
+        <mat-icon>add</mat-icon> Nueva Comuna
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <app-data-table
+        [columns]="columns"
+        [data]="data"
+        (view)="onView($event)"
+        (edit)="onEdit($event)"
+        (delete)="onDelete($event)">
+      </app-data-table>
+    </mat-card-content>
+  </mat-card>
 </div>
 
-<mat-dialog-content *ngIf="isDialogOpen">
-  <h2 class="text-lg font-semibold mb-4">{{ dialogTitle }}</h2>
-  <div class="flex flex-col gap-4">
-    <mat-form-field>
-      <mat-label>Departamento</mat-label>
-      <mat-select [(ngModel)]="form.department_id" (selectionChange)="onDepartmentChange()">
-        <mat-option *ngFor="let d of departments" [value]="d.id_department">{{ d.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Ciudad</mat-label>
-      <mat-select [(ngModel)]="form.id_city">
-        <mat-option *ngFor="let c of cities" [value]="c.id_city">{{ c.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Nombre de la comuna</mat-label>
-      <input matInput [(ngModel)]="form.name" placeholder="Ej: Comuna 1" />
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Estado</mat-label>
-      <mat-select [(ngModel)]="form.status">
-        <mat-option value="activa">Activa</mat-option>
-        <mat-option value="inactiva">Inactiva</mat-option>
-      </mat-select>
-    </mat-form-field>
+@if (showDependentDialog) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <mat-card class="p-6 max-w-md w-full mx-4">
+      <h2 class="text-lg font-semibold mb-2 text-red-600">No se puede eliminar la comuna</h2>
+      <p class="mb-4">La comuna tiene los siguientes barrios asociados:</p>
+      <ul class="list-disc pl-5 mb-4">
+        @for (b of dependentBarrios; track b.id_neighborhood) {
+          <li>{{ b.name }}</li>
+        }
+      </ul>
+      <p class="text-sm text-gray-600">Elimine o reasigne los barrios antes de eliminar la comuna.</p>
+      <div class="flex justify-end mt-4">
+        <button mat-stroked-button (click)="closeDependentDialog()">Cerrar</button>
+      </div>
+    </mat-card>
   </div>
-  <div class="flex justify-end gap-3 mt-4">
-    <button mat-stroked-button (click)="closeDialog()">Cancelar</button>
-    <button mat-raised-button color="primary" (click)="save()">Guardar</button>
-  </div>
-</mat-dialog-content>
-
-<mat-dialog-content *ngIf="showDependentDialog">
-  <h2 class="text-lg font-semibold mb-2 text-red-600">No se puede eliminar la comuna</h2>
-  <p class="mb-4">La comuna tiene los siguientes barrios asociados:</p>
-  <ul class="list-disc pl-5 mb-4">
-    <li *ngFor="let b of dependentBarrios">{{ b.name }}</li>
-  </ul>
-  <p class="text-sm text-gray-600">Elimine o reasigne los barrios antes de eliminar la comuna.</p>
-  <div class="flex justify-end mt-4">
-    <button mat-stroked-button (click)="closeDependentDialog()">Cerrar</button>
-  </div>
-</mat-dialog-content>
+}
