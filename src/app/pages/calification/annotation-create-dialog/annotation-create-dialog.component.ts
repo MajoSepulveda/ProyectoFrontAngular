@@ -9,7 +9,9 @@ import { AnnotationService } from '../../../services/annotation.service';
 import { CategoryService } from '../../../services/category.service';
 import { ApiService } from '../../../services/api.service';
 import { Category } from '../../../models/Category';
+import { Entity } from '../../../models/Entity';
 import { Annotation } from '../../../models/Annotation';
+import { EntityService } from '../../../services/entity.service';
 
 export interface AnnotationCreateData {
   lat: number;
@@ -42,13 +44,17 @@ export interface AnnotationCreateData {
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Categorías</mat-label>
           <mat-select [(ngModel)]="selectedCategoryIds" multiple>
-            <mat-optgroup *ngFor="let parent of parentCategories" [label]="parent.name">
-              <mat-option *ngFor="let child of getChildren(parent.id_category)" [value]="child.id_category">
-                {{ child.name }}
-              </mat-option>
-            </mat-optgroup>
-            <mat-option *ngFor="let orphan of orphanCategories" [value]="orphan.id_category">
-              {{ orphan.name }}
+            <mat-option *ngFor="let cat of parentCategories" [value]="cat.id_category">
+              {{ cat.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Entidades interesadas</mat-label>
+          <mat-select [(ngModel)]="selectedEntityIds" multiple>
+            <mat-option *ngFor="let ent of entities" [value]="ent.id_entity">
+              {{ ent.name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -83,7 +89,9 @@ export interface AnnotationCreateData {
 export class AnnotationCreateDialogComponent implements OnInit {
   description = '';
   selectedCategoryIds: number[] = [];
+  selectedEntityIds: number[] = [];
   categories: Category[] = [];
+  entities: Entity[] = [];
   saving = false;
   error = '';
 
@@ -97,6 +105,7 @@ export class AnnotationCreateDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: AnnotationCreateData,
     private dialogRef: MatDialogRef<AnnotationCreateDialogComponent>,
     private categoryService: CategoryService,
+    private entityService: EntityService,
     private annotationService: AnnotationService,
     private apiService: ApiService,
     private snackBar: MatSnackBar
@@ -106,22 +115,13 @@ export class AnnotationCreateDialogComponent implements OnInit {
     this.categoryService.getAll().subscribe({
       next: (data) => (this.categories = data),
     });
+    this.entityService.getAll().subscribe({
+      next: (data) => (this.entities = data),
+    });
   }
 
   get parentCategories(): Category[] {
     return this.categories.filter((c) => c.id_parent_category === null);
-  }
-
-  get orphanCategories(): Category[] {
-    return this.categories.filter(
-      (c) =>
-        c.id_parent_category !== null &&
-        !this.categories.some((p) => p.id_category === c.id_parent_category)
-    );
-  }
-
-  getChildren(parentId: number): Category[] {
-    return this.categories.filter((c) => c.id_parent_category === parentId);
   }
 
   onFileSelected(event: Event): void {
@@ -184,6 +184,17 @@ export class AnnotationCreateDialogComponent implements OnInit {
           this.apiService.post('/annotation-categories', {
             id_annotation: annotationId,
             id_category,
+          })
+        );
+      }
+    }
+
+    if (this.selectedEntityIds.length > 0) {
+      for (const id_entity of this.selectedEntityIds) {
+        ops.push(
+          this.apiService.post('/annotation-entities', {
+            id_annotation: annotationId,
+            id_entity,
           })
         );
       }
